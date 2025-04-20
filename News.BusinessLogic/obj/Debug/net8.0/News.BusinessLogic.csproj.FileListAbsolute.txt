@@ -32,3 +32,4 @@ C:\Users\Lena\Downloads\APZ-brach1\APZ-brach1\News\News.BusinessLogic\obj\Debug\
 C:\Users\Lena\Downloads\APZ-brach1\APZ-brach1\News\News.BusinessLogic\obj\Debug\net8.0\News.BusinessLogic.pdb
 C:\Users\Lena\Downloads\APZ-brach1\APZ-brach1\News\News.BusinessLogic\obj\Debug\net8.0\News.BusinessLogic.genruntimeconfig.cache
 C:\Users\Lena\Downloads\APZ-brach1\APZ-brach1\News\News.BusinessLogic\obj\Debug\net8.0\ref\News.BusinessLogic.dll
+C:\Users\Lena\Downloads\APZ-brach1\APZ-brach1\News\News.BusinessLogic\obj\Debug\net8.0\News.BusinessLogic.sourcelink.json

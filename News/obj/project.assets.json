@@ -1949,6 +1949,16 @@
         "runtime": {
           "bin/placeholder/News.Infrastructure.dll": {}
         }
+      },
+      "News.Models/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "compile": {
+          "bin/placeholder/News.Models.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/News.Models.dll": {}
+        }
       }
     }
   },
@@ -5859,6 +5869,11 @@
       "type": "project",
       "path": "../News.Infrastructure/News.Infrastructure.csproj",
       "msbuildProject": "../News.Infrastructure/News.Infrastructure.csproj"
+    },
+    "News.Models/1.0.0": {
+      "type": "project",
+      "path": "../News.Models/News.Models.csproj",
+      "msbuildProject": "../News.Models/News.Models.csproj"
     }
   },
   "projectFileDependencyGroups": {
@@ -5873,6 +5888,7 @@
       "Microsoft.EntityFrameworkCore.Tools >= 7.0.5",
       "News.BusinessLogic >= 1.0.0",
       "News.Infrastructure >= 1.0.0",
+      "News.Models >= 1.0.0",
       "Swashbuckle.AspNetCore >= 6.2.3"
     ]
   },
@@ -5913,6 +5929,9 @@
             },
             "C:\\Users\\Lena\\Downloads\\APZ-brach1\\APZ-brach1\\News\\News.Infrastructure\\News.Infrastructure.csproj": {
               "projectPath": "C:\\Users\\Lena\\Downloads\\APZ-brach1\\APZ-brach1\\News\\News.Infrastructure\\News.Infrastructure.csproj"
+            },
+            "C:\\Users\\Lena\\Downloads\\APZ-brach1\\APZ-brach1\\News\\News.Models\\News.Models.csproj": {
+              "projectPath": "C:\\Users\\Lena\\Downloads\\APZ-brach1\\APZ-brach1\\News\\News.Models\\News.Models.csproj"
             }
           }
         }

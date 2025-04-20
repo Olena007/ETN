@@ -36,3 +36,4 @@ C:\Users\Lena\Downloads\APZ-brach1\APZ-brach1\News\News.Infrastructure\obj\Debug
 C:\Users\Lena\Downloads\APZ-brach1\APZ-brach1\News\News.Infrastructure\obj\Debug\net8.0\News.Infrastructure.pdb
 C:\Users\Lena\Downloads\APZ-brach1\APZ-brach1\News\News.Infrastructure\obj\Debug\net8.0\News.Infrastructure.genruntimeconfig.cache
 C:\Users\Lena\Downloads\APZ-brach1\APZ-brach1\News\News.Infrastructure\obj\Debug\net8.0\ref\News.Infrastructure.dll
+C:\Users\Lena\Downloads\APZ-brach1\APZ-brach1\News\News.Infrastructure\obj\Debug\net8.0\News.Infrastructure.sourcelink.json

@@ -1,22 +1,13 @@
 using System.Globalization;
 using CsvHelper;
 using Microsoft.AspNetCore.Mvc;
-
+using News.Models;
 
 namespace WebApi.Controllers;
 
 public class ArticleController: BaseController
 {
-    public class ArticleModel
-    {
-        public string Article {  get; set; }
-        public string Heading { get; set; }
-        public DateTime Date { get; set; }
-        public string NewsType { get; set; }
-    }
-    
     [HttpGet]
-
     public List<ArticleModel> Get()
     {
         var path = Path.Combine($"{Directory.GetCurrentDirectory()}.Infrastructure", "Articles.csv");
@@ -24,7 +15,7 @@ public class ArticleController: BaseController
         using var reader = new StreamReader(path);
         using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
 
-        var records = csv.GetRecords<ArticleModel>().ToList();
+        var records = csv.GetRecords<ArticleModel>().Take(10).ToList();
         return records;
     } 
 }

@@ -1,0 +1,11 @@
+.form-login{
+    justify-content: center;
+    display: flex;
+}
+
+.lock{
+    background-color: rgb(15, 56, 89) !important;
+}
+.btn-signin{
+    background-color: #778389 !important;
+}

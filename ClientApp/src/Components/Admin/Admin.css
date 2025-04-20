@@ -1,0 +1,43 @@
+.appbar{
+    /* background-color: #00344A !important; */
+    background-color: #01579b !important;
+}
+
+.country{
+    max-width: 40%;
+    margin-right: 20%;
+}
+
+.pag{
+    display: flex;
+    justify-content: center;
+    padding-top: 5%;
+}
+
+.LinkGen{
+    text-decoration: none;
+    color: inherit;
+}
+
+.LinkGen:hover {
+    color: inherit;
+}
+
+.down{
+    margin-top: 10%;
+}
+
+.form-add{
+    display: flex;
+    justify-content: left;
+}
+
+.form_adding{
+    max-width: 50%;
+}
+
+.form_adding_div{
+    display: flex;
+    align-items: baseline;
+    gap: 2%;
+}

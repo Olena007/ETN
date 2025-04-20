@@ -366,3 +366,6 @@ C:\Users\Lena\Downloads\APZ-brach1\APZ-brach1\News\News\obj\Debug\net8.0\staticw
 C:\Users\Lena\Downloads\APZ-brach1\APZ-brach1\News\News\obj\Debug\net8.0\News.csproj.Up2Date
 C:\Users\Lena\Downloads\APZ-brach1\APZ-brach1\News\News\obj\Debug\net8.0\News.genruntimeconfig.cache
 C:\Users\Lena\Downloads\APZ-brach1\APZ-brach1\News\News\obj\Debug\net8.0\ref\News.dll
+C:\Users\Lena\Downloads\APZ-brach1\APZ-brach1\News\News\obj\Debug\net8.0\News.sourcelink.json
+C:\Users\Lena\Downloads\APZ-brach1\APZ-brach1\News\News\bin\Debug\net8.0\News.Models.dll
+C:\Users\Lena\Downloads\APZ-brach1\APZ-brach1\News\News\bin\Debug\net8.0\News.Models.pdb

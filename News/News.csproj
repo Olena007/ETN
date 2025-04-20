@@ -28,6 +28,7 @@
   <ItemGroup>
     <ProjectReference Include="..\News.BusinessLogic\News.BusinessLogic.csproj" />
     <ProjectReference Include="..\News.Infrastructure\News.Infrastructure.csproj" />
+    <ProjectReference Include="..\News.Models\News.Models.csproj" />
   </ItemGroup>
 
 </Project>
