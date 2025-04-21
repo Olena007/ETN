@@ -46,3 +46,10 @@
     transform: rotate(360deg);
   }
 }
+
+.grid{
+  margin-left: 150px;
+  margin-right: 150px;
+  margin-top: 500px;
+
+}

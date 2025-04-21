@@ -403,13 +403,29 @@ export default function Header({children}: HeaderProps) {
                     <Tabs
                         value={value}
                         onChange={handleChange}
-                        textColor="secondary"
-                        indicatorColor="secondary"
-                        aria-label="secondary tabs example"
+                        aria-label="custom red tabs"
+                        textColor="inherit"          
+                        indicatorColor="secondary"   
+                        sx={{
+                            '& .MuiTabs-indicator': {
+                                backgroundColor: '#9e1b32',
+                            },
+                            '& .MuiTab-root': {
+                                color: '#9e1b32',
+                                fontWeight: 500,
+                            },
+                            '& .MuiTab-root.Mui-selected': {
+                                color: '#9e1b32',
+                                borderBottom: '2px solid #9e1b32',
+                            },
+                            '& .MuiTab-root:hover': {
+                                color: '#b71c1c',
+                            },
+                        }}
                     >
-                        <Tab value="one" label="Item One" />
-                        <Tab value="two" label="Item Two" />
-                        <Tab value="three" label="Item Three" />
+                    <Tab value="one" label="Home" />
+                        <Tab value="two" label="Latest" />
+                        <Tab value="three" label="For you" />
                     </Tabs>
                 </Box>
                 <Box sx={{ height: '2px', backgroundColor: '#979696', width: '100%' }}/>

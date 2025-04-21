@@ -16,6 +16,12 @@ public class ArticleController: BaseController
         using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
 
         var records = csv.GetRecords<ArticleModel>().Take(10).ToList();
-        return records;
+        var filtered = records
+            .Where(r =>
+                !string.IsNullOrWhiteSpace(r.Title) &&
+                !string.IsNullOrWhiteSpace(r.Description)
+            )
+            .ToList();
+        return filtered;
     } 
 }
