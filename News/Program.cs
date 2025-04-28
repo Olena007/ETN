@@ -21,6 +21,7 @@ builder.Services.AddAutoMapper(config =>
 builder.Services.AddApplication();
 builder.Services.AddPersistence(builder.Configuration);
 builder.Services.AddScoped<Token>();
+builder.Services.AddHttpClient();
 builder.Services.AddCors(opts =>
 {
     opts.AddPolicy("AllowAll", policy =>

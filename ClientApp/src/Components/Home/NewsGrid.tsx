@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import {Article, ArticleModel} from "../../models/models";
+import {useNavigate} from "react-router-dom";
 
 const defaultImage = "https://akhbarhub.ir/public/default-image/default-1080x1000.png";
 
@@ -32,10 +33,15 @@ const Clamp = styled(Typography, {
 }));
 
 export default function NewsGrid(props: {articles: Article[]}) {
+    const navigate = useNavigate();
     const sideLeft = props.articles.filter((_, i) => i === 1 || i === 2);
-    const sideRight = props.articles.slice(3);
+    const sideRight = props.articles.slice(4, 7);
 
     const thirdArticle = props.articles[3];
+
+    const goToNews = (id: any) => {
+        navigate(`/news/${id}`); 
+    };
 
     return (
         <Box sx={{ p: 2, textAlign: "left", fontFamily: "Georgia, serif", marginLeft: "150px", marginTop: "50px", marginRight: "150px" }}>
@@ -44,7 +50,8 @@ export default function NewsGrid(props: {articles: Article[]}) {
                     <Grid container direction="column" spacing={2}>
                         {sideLeft.map((article, index) => (
                             <Grid item key={index}>
-                                <Card sx={{
+                                <Card  onClick={() => goToNews(article.id)}
+                                    sx={{
                                     display: "flex",
                                     flexDirection: "column",
                                     boxShadow: "none",
@@ -79,7 +86,6 @@ export default function NewsGrid(props: {articles: Article[]}) {
                 </Grid>
 
                 <Grid item xs={12} md={6}>
-                    {/* Отображаем третий элемент, если он существует */}
                     {thirdArticle && (
                         <Card sx={{
                             boxShadow: "none",

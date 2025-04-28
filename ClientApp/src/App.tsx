@@ -4,17 +4,13 @@ import './App.css';
 import { Link, Route, Routes } from 'react-router-dom';
 import { Box, Container, Grid, Typography, Button } from '@mui/material';
 import Home from './Components/Home/Home';
-import Admin from './Components/Admin/Admin';
-import Versions from './Components/Admin/Versions';
-import Version from './Components/Admin/Version';
-import Dashboard from './Components/Admin/Dashboard';
-import Adding from './Components/Admin/Adding';
 import Login from './Components/Login/Login';
 import HomeHeader from "./Components/header/header";
 import Header from './Components/header/header';
+import SingleNews from "./Components/single-news/single-news";
 
 function App() {
-  const [name, setName] = useState('');
+  /*const [name, setName] = useState('');
   useEffect(() => {
     (
         async () => {
@@ -29,14 +25,14 @@ function App() {
             setName(content.email);
         }
     )();
-});
+});*/
   return (
     <div className="App">
         <Header>
             <Routes>
                 <Route path="/" element={<Home/>}></Route>
-                <Route path="admin" element={<Admin />}></Route>
-                <Route path="login" element={<Login setName={setName}/>}></Route>
+                <Route path="/news/:id" element={<SingleNews/>}></Route>
+                {/*<Route path="login" element={<Login setName={setName}/>}></Route>*/}
                 <Route path="*" element={<NoMatchComponent />} />
             </Routes>
         </Header>

@@ -458,6 +458,10 @@
               "target": "Package",
               "version": "[7.0.5, )"
             },
+            "NewsAPI": {
+              "target": "Package",
+              "version": "[0.7.0, )"
+            },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[6.2.3, )"

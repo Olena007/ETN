@@ -19,6 +19,7 @@ export interface NewsApiResponse {
 }
 
 export interface Article {
+    id: string;
     source: Source;
     author: string | null;
     title: string;

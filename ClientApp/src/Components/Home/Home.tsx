@@ -19,7 +19,20 @@ export default function Home(){
     const [article, setArticle] = useState<Article[]>([]);
 
     useEffect(() => {
+
         const fetchNews = async () => {
+            fetch('https://localhost:7001/api/Article/GetAll', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json'
+                }
+            }).then(res => res.json())
+                .then(res => {
+                    setArticle(res);
+                });
+        }
+        /*const fetchNews = async () => {
             try {
                 const res = await fetch(
                     'https://newsapi.org/v2/top-headlines?category=science&language=en&pageSize=10',
@@ -40,7 +53,7 @@ export default function Home(){
             } catch (err) {
                 console.error('Ошибка при загрузке новостей:', err);
             }
-        };
+        };*/
 
         fetchNews();
     }, []);
