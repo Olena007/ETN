@@ -371,3 +371,4 @@ C:\Users\Lena\Downloads\APZ-brach1\APZ-brach1\News\News\bin\Debug\net8.0\News.Mo
 C:\Users\Lena\Downloads\APZ-brach1\APZ-brach1\News\News\bin\Debug\net8.0\News.Models.pdb
 C:\Users\Lena\Downloads\APZ-brach1\APZ-brach1\News\News\bin\Debug\net8.0\NewsAPI.dll
 C:\Users\Lena\Downloads\APZ-brach1\APZ-brach1\News\News\bin\Debug\net8.0\Newtonsoft.Json.dll
+C:\Users\Lena\Downloads\APZ-brach1\APZ-brach1\News\News\bin\Debug\net8.0\Infrastructure\articles.json

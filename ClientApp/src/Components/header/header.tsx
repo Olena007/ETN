@@ -25,7 +25,7 @@ import {AccountCircle, Logout, PersonAdd, Settings} from '@mui/icons-material';
 import {useTranslation} from 'react-i18next';
 import './header.css';
 import PublicIcon from '@mui/icons-material/Public';
-import {Link} from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
 import {red} from "@mui/material/colors";
 
 
@@ -92,6 +92,7 @@ export default function Header({children}: HeaderProps) {
     const [mobileMoreAnchorElLanguage, setMobileMoreAnchorElLanguage] = React.useState<null | HTMLElement>(null);
     const {t, i18n} = useTranslation();
     const [logoutTheme, setLogout] = useState(false);
+    const navigate = useNavigate();
     let auth;
 
     const onTranslate = (e: any) => {
@@ -360,7 +361,7 @@ export default function Header({children}: HeaderProps) {
                         sx={{mr: 2, ...(open && {display: 'none'})}}>
                         <MenuIcon/>
                     </IconButton>
-                    <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}>
+                    <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }} onClick={() => navigate(`/`)}>
                         <Typography variant="h4" noWrap component="div">
                             <b>ETN</b>
                         </Typography>

@@ -9,7 +9,7 @@ import {
     Link,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import {Article, ArticleModel} from "../../models/models";
+import {Article} from "../../models/models";
 import {useNavigate} from "react-router-dom";
 
 const defaultImage = "https://akhbarhub.ir/public/default-image/default-1080x1000.png";
@@ -50,7 +50,7 @@ export default function NewsGrid(props: {articles: Article[]}) {
                     <Grid container direction="column" spacing={2}>
                         {sideLeft.map((article, index) => (
                             <Grid item key={index}>
-                                <Card  onClick={() => goToNews(article.id)}
+                                <Card  onClick={() => goToNews(article.uri)}
                                     sx={{
                                     display: "flex",
                                     flexDirection: "column",
@@ -59,24 +59,18 @@ export default function NewsGrid(props: {articles: Article[]}) {
                                     <CardMedia
                                         component="img"
                                         height="140"
-                                        image={article.urlToImage || defaultImage}
+                                        image={article.image || defaultImage}
                                         alt={article.title}
                                     />
                                     <CardContent sx={{ p: 1.5 }}>
                                         <Clamp variant="subtitle1" lines={2} fontWeight={600}>
-                                            {article.urlToImage ? (
-                                                <Link href={article.urlToImage} target="_blank" underline="hover" color="inherit">
-                                                    {article.title}
-                                                </Link>
-                                            ) : (
-                                                article.title
-                                            )}
+                                            {article.title}
                                         </Clamp>
                                         <Clamp variant="body2" color="text.secondary" lines={3}>
-                                            {article.description}
+                                            {article.body}
                                         </Clamp>
                                         <Typography variant="caption" color="text.disabled" mt={1}>
-                                            {formatTime(article.publishedAt.toString())} &nbsp;|&nbsp; {article.content}
+                                            {formatTime(article.date.toString())} &nbsp;|&nbsp; 
                                         </Typography>
                                     </CardContent>
                                 </Card>
@@ -87,25 +81,25 @@ export default function NewsGrid(props: {articles: Article[]}) {
 
                 <Grid item xs={12} md={6}>
                     {thirdArticle && (
-                        <Card sx={{
+                        <Card onClick={() => goToNews(thirdArticle.uri)} sx={{
                             boxShadow: "none",
                             borderRadius: 0,
                         }}>
                             <CardMedia
                                 component="img"
                                 height="300"
-                                image={thirdArticle.urlToImage || defaultImage}
+                                image={thirdArticle.image || defaultImage}
                                 alt={thirdArticle.title}
                             />
                             <CardContent>
-                                <Typography variant="h5" fontWeight={700}>
+                                <Clamp variant="h5" lines={2} fontWeight={700}>
                                     {thirdArticle.title}
-                                </Typography>
-                                <Typography variant="body1" color="text.secondary" mt={1}>
-                                    {thirdArticle.description}
-                                </Typography>
+                                </Clamp>
+                                <Clamp variant="body1" color="text.secondary" lines={10} mt={1}>
+                                    {thirdArticle.body}
+                                </Clamp>
                                 <Typography variant="caption" color="text.disabled" mt={2}>
-                                    {formatTime(thirdArticle.publishedAt.toString())} &nbsp;|&nbsp; {thirdArticle.content}
+                                    {formatTime(thirdArticle.date.toString())} &nbsp;|&nbsp; 
                                 </Typography>
                             </CardContent>
                         </Card>
@@ -116,21 +110,22 @@ export default function NewsGrid(props: {articles: Article[]}) {
                     <Grid container direction="column" spacing={2}>
                         {sideRight.map((article, index) => (
                             <Grid item key={index}>
-                                <Box>
+                                <Box onClick={() => goToNews(article.uri)}>
                                     <Typography variant="subtitle1" fontWeight={600}>
                                         {article.title}
                                     </Typography>
-                                    {article.description && (
-                                        <Typography
+                                    {article.body && (
+                                        <Clamp
                                             variant="body2"
                                             color="text.secondary"
+                                            lines={3}
                                             sx={{ mt: 0.5 }}
                                         >
-                                            {article.description}
-                                        </Typography>
+                                            {article.body}
+                                        </Clamp>
                                     )}
                                     <Typography variant="caption" color="text.disabled">
-                                        {formatTime(article.publishedAt.toString())} &nbsp;|&nbsp; {article.content}
+                                        {formatTime(article.date.toString())} &nbsp;|&nbsp; 
                                     </Typography>
                                 </Box>
                             </Grid>

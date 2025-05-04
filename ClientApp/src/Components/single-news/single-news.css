@@ -1,0 +1,30 @@
+.layout{
+    margin-left: 400px;
+    margin-right: 400px;
+}
+
+.main-layout{
+    justify-content:  center;
+    font-family: Georgia, serif;
+    text-align: left;
+    margin-top: 50px;
+}
+
+.image-layout{
+    margin: 15px 300px 30px;
+}
+
+.related-layout{
+    margin-top: 50px;
+    margin-left: 200px;
+    margin-right: 200px;
+}
+
+.line{
+    height: 5px;
+    background-color: #9e1b32;
+}
+
+.related-news{
+    display:  flex;
+}
