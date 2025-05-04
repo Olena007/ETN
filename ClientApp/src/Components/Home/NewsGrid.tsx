@@ -49,11 +49,11 @@ export default function NewsGrid(props: {articles: Article[]}) {
                 <Grid item xs={12} md={3}>
                     <Grid container direction="column" spacing={2}>
                         {sideLeft.map((article, index) => (
-                            <Grid item key={index}>
+                            <Grid item key={index} >
                                 <Card  onClick={() => goToNews(article.uri)}
                                     sx={{
                                     display: "flex",
-                                    flexDirection: "column",
+                                    flexDirection: "column", cursor: 'pointer',
                                     boxShadow: "none",
                                     borderRadius: 0 }} >
                                     <CardMedia
@@ -84,6 +84,7 @@ export default function NewsGrid(props: {articles: Article[]}) {
                         <Card onClick={() => goToNews(thirdArticle.uri)} sx={{
                             boxShadow: "none",
                             borderRadius: 0,
+                            cursor: 'pointer'
                         }}>
                             <CardMedia
                                 component="img"
@@ -110,7 +111,7 @@ export default function NewsGrid(props: {articles: Article[]}) {
                     <Grid container direction="column" spacing={2}>
                         {sideRight.map((article, index) => (
                             <Grid item key={index}>
-                                <Box onClick={() => goToNews(article.uri)}>
+                                <Box onClick={() => goToNews(article.uri)} sx={{cursor: 'pointer'}}>
                                     <Typography variant="subtitle1" fontWeight={600}>
                                         {article.title}
                                     </Typography>

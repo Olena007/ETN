@@ -361,7 +361,7 @@ export default function Header({children}: HeaderProps) {
                         sx={{mr: 2, ...(open && {display: 'none'})}}>
                         <MenuIcon/>
                     </IconButton>
-                    <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }} onClick={() => navigate(`/`)}>
+                    <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center', cursor: 'pointer' }} onClick={() => navigate(`/`)}>
                         <Typography variant="h4" noWrap component="div">
                             <b>ETN</b>
                         </Typography>

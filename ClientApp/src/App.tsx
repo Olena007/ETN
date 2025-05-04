@@ -8,6 +8,7 @@ import Login from './Components/Login/Login';
 import HomeHeader from "./Components/header/header";
 import Header from './Components/header/header';
 import SingleNews from "./Components/single-news/single-news";
+import Footer from "./Components/footer/footer";
 
 function App() {
   /*const [name, setName] = useState('');
@@ -36,6 +37,7 @@ function App() {
                 <Route path="*" element={<NoMatchComponent />} />
             </Routes>
         </Header>
+        <Footer/>
     </div>
   );
 }
