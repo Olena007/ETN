@@ -1,6 +1,6 @@
 ﻿namespace News.Models;
 
-public class Article
+public class NewsModel
 {
     public string Uri { get; set; }
     public string Lang { get; set; }

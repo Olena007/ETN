@@ -9,9 +9,10 @@ import HomeHeader from "./Components/header/header";
 import Header from './Components/header/header';
 import SingleNews from "./Components/single-news/single-news";
 import Footer from "./Components/footer/footer";
+import Register from "./Components/register/Register";
 
 function App() {
-  /*const [name, setName] = useState('');
+  const [name, setName] = useState('');
   useEffect(() => {
     (
         async () => {
@@ -26,14 +27,15 @@ function App() {
             setName(content.email);
         }
     )();
-});*/
+});
   return (
     <div className="App">
         <Header>
             <Routes>
                 <Route path="/" element={<Home/>}></Route>
                 <Route path="/news/:id" element={<SingleNews/>}></Route>
-                {/*<Route path="login" element={<Login setName={setName}/>}></Route>*/}
+                <Route path="login" element={<Login setName={setName}/>}></Route>
+                <Route path="register" element={<Register />}></Route>
                 <Route path="*" element={<NoMatchComponent />} />
             </Routes>
         </Header>

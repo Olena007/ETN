@@ -1,6 +1,5 @@
 using MediatR;
 using News.BusinessLogic.Interfaces;
-using News.Entities;
 
 namespace News.BusinessLogic.View;
 
@@ -22,7 +21,8 @@ public class CreateViewCommandHandler(INewsDbContext context) : IRequestHandler<
         return (Guid)entity.ViewId;
     }
 }
-public abstract class CreateViewCommand : IRequest<Guid>
+
+public class CreateViewCommand : IRequest<Guid>
 {
     public DateTime? ViewAt { get; set; }
     public Guid? UserId { get; set; }

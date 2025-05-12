@@ -13,6 +13,8 @@ namespace News.BusinessLogic.Interfaces
     {
         DbSet<Car> Cars { get; }
         DbSet<User> Users { get; }
+        DbSet<Entities.View> Views { get; }
+        DbSet<Entities.News> News { get; }
         DbSet<Booking> Bookings { get; }
         Task<int> SaveChangesAsync(CancellationToken token);
     }

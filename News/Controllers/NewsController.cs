@@ -1,14 +1,19 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using News.BusinessLogic.Cars;
 using News.BusinessLogic.Interfaces;
+using News.BusinessLogic.News;
 using News.Models;
 using Newtonsoft.Json.Linq;
 
 namespace WebApi.Controllers;
 
-public class ArticleController(INewsDbContext context): BaseController
+public class NewsController(INewsDbContext context): BaseController
 {
-    [HttpGet]
+    [HttpPost("getAll")]
+    public async Task<ActionResult<NewsVm>> GetAll([FromBody] GetNewsQuery query) => Ok(await Mediator.Send(query));
+    
+    [HttpGet("get")]
     public IActionResult Get()
     {
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Infrastructure", "articles.json");
@@ -24,8 +29,8 @@ public class ArticleController(INewsDbContext context): BaseController
         return Ok(articles);
     }
     
-    [HttpGet("uri")]
-    public IActionResult Get(string uri)
+    [HttpGet("by-uri")]
+    public IActionResult GetByUri(string uri)
     {
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Infrastructure", "articles.json");
 
@@ -42,7 +47,7 @@ public class ArticleController(INewsDbContext context): BaseController
         return Ok(article);
     }
     
-    [HttpGet]
+    [HttpGet("recommended")]
     public IActionResult GetRecommended(string uri)
     {
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Infrastructure", "articles.json");
