@@ -1,7 +1,5 @@
 ﻿using News.BusinessLogic.Common.Mappings;
 using AutoMapper;
-using System.Text.Json.Serialization;
-using static News.BusinessLogic.Cars.UpdateCar;
 using static News.BusinessLogic.Users.UpdateUser;
 
 namespace WebApi.Models

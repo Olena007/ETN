@@ -18,7 +18,7 @@ public class GetViewQueryHandler(INewsDbContext context, IMapper mapper): IReque
             .FirstOrDefaultAsync(x => x.ViewId == request.ViewId, cancellationToken: cancellationToken);
 
         if (entity == null)
-            throw new NotFoundException(nameof(Booking), request.ViewId);
+            throw new NotFoundException(nameof(View), request.ViewId);
 
         return mapper.Map<ViewVm>(entity);
     }

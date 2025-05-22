@@ -26,7 +26,6 @@ namespace News.BusinessLogic.Users
             [JsonIgnore]
             public string? Password { get; set; } = null!;
             public int? Level { get; set; }
-            public ICollection<Booking> Bookings { get; set; }
 
             public void Mapping(Profile profile)
             {
@@ -58,7 +57,6 @@ namespace News.BusinessLogic.Users
             public async Task<UserVm> Handle(GetUserQuery request, CancellationToken cancellationToken)
             {
                 var entity = await _context.Users
-                    .Include(x => x.Bookings)
                     .FirstOrDefaultAsync(x => x.UserId == request.UserId);
 
                 if (entity == null)
@@ -82,7 +80,6 @@ namespace News.BusinessLogic.Users
             public async Task<UserVm> Handle(GetUserQueryByEmail request, CancellationToken cancellationToken)
             {
                 var entity = await _context.Users
-                    .Include(x => x.Bookings)
                     .FirstOrDefaultAsync(x => x.UserEmail == request.UserEmail);
 
                 if (entity == null)

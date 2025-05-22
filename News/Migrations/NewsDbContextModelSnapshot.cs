@@ -25,144 +25,64 @@ namespace WebApi.Migrations
 
             modelBuilder.Entity("News.Entities.Author", b =>
                 {
-                    b.Property<string>("Uri")
-                        .HasColumnType("text");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
-                    b.Property<bool>("IsAgency")
+                    b.Property<bool?>("IsAgency")
                         .HasColumnType("boolean");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("NewsUri")
-                        .HasColumnType("text");
+                    b.Property<Guid?>("NewsId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Type")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Uri")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("Uri");
+                    b.HasKey("Id");
 
-                    b.HasIndex("NewsUri");
+                    b.HasIndex("NewsId");
 
-                    b.ToTable("Author");
-                });
-
-            modelBuilder.Entity("News.Entities.Booking", b =>
-                {
-                    b.Property<Guid>("BookingId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Area")
-                        .HasColumnType("text");
-
-                    b.Property<Guid?>("CarId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime?>("EndBooking")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime?>("StartBooking")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("BookingId");
-
-                    b.HasIndex("CarId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Bookings");
-                });
-
-            modelBuilder.Entity("News.Entities.Car", b =>
-                {
-                    b.Property<Guid>("CarId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Brand")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Image")
-                        .HasColumnType("text");
-
-                    b.Property<bool?>("IsAvailable")
-                        .HasColumnType("boolean");
-
-                    b.Property<int?>("Level")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("LicensePlate")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Model")
-                        .HasColumnType("text");
-
-                    b.Property<int?>("YearOfIssue")
-                        .HasColumnType("integer");
-
-                    b.HasKey("CarId");
-
-                    b.ToTable("Cars");
+                    b.ToTable("Authors");
                 });
 
             modelBuilder.Entity("News.Entities.Category", b =>
                 {
-                    b.Property<string>("Uri")
-                        .HasColumnType("text");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Label")
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("NewsId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Uri")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("NewsUri")
-                        .HasColumnType("text");
-
-                    b.Property<int>("Wgt")
+                    b.Property<int?>("Wgt")
                         .HasColumnType("integer");
 
-                    b.HasKey("Uri");
+                    b.HasKey("Id");
 
-                    b.HasIndex("NewsUri");
+                    b.HasIndex("NewsId");
 
-                    b.ToTable("Category");
-                });
-
-            modelBuilder.Entity("News.Entities.Concept", b =>
-                {
-                    b.Property<string>("Uri")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Image")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("NewsUri")
-                        .HasColumnType("text");
-
-                    b.Property<double>("Score")
-                        .HasColumnType("double precision");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Uri");
-
-                    b.HasIndex("NewsUri");
-
-                    b.ToTable("Concept");
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("News.Entities.News", b =>
                 {
-                    b.Property<string>("Uri")
-                        .HasColumnType("text");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Body")
                         .IsRequired()
@@ -177,11 +97,9 @@ namespace WebApi.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("EventUri")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Image")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Lang")
@@ -195,9 +113,8 @@ namespace WebApi.Migrations
                     b.Property<double>("Sim")
                         .HasColumnType("double precision");
 
-                    b.Property<string>("SourceUri")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("SourceId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Time")
                         .IsRequired()
@@ -207,40 +124,46 @@ namespace WebApi.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Uri")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Url")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("Uri");
+                    b.HasKey("Id");
 
-                    b.HasIndex("SourceUri");
+                    b.HasIndex("SourceId");
 
                     b.ToTable("News");
                 });
 
             modelBuilder.Entity("News.Entities.Source", b =>
                 {
-                    b.Property<string>("Uri")
-                        .HasColumnType("text");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
                     b.Property<string>("DataType")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<bool>("LocationValidated")
+                    b.Property<bool?>("LocationValidated")
                         .HasColumnType("boolean");
 
                     b.Property<string>("Title")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Uri")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("Uri");
+                    b.HasKey("Id");
 
-                    b.ToTable("Source");
+                    b.ToTable("Sources");
                 });
 
             modelBuilder.Entity("News.Entities.User", b =>
@@ -274,21 +197,25 @@ namespace WebApi.Migrations
 
             modelBuilder.Entity("News.Entities.Video", b =>
                 {
-                    b.Property<string>("Uri")
-                        .HasColumnType("text");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Label")
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("NewsId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Uri")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("NewsUri")
-                        .HasColumnType("text");
+                    b.HasKey("Id");
 
-                    b.HasKey("Uri");
+                    b.HasIndex("NewsId");
 
-                    b.HasIndex("NewsUri");
-
-                    b.ToTable("Video");
+                    b.ToTable("Videos");
                 });
 
             modelBuilder.Entity("News.Entities.View", b =>
@@ -297,8 +224,8 @@ namespace WebApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("NewsUri")
-                        .HasColumnType("text");
+                    b.Property<Guid>("NewsId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Uri")
                         .IsRequired()
@@ -312,7 +239,7 @@ namespace WebApi.Migrations
 
                     b.HasKey("ViewId");
 
-                    b.HasIndex("NewsUri");
+                    b.HasIndex("NewsId");
 
                     b.HasIndex("UserId");
 
@@ -323,278 +250,74 @@ namespace WebApi.Migrations
                 {
                     b.HasOne("News.Entities.News", null)
                         .WithMany("Authors")
-                        .HasForeignKey("NewsUri");
-                });
-
-            modelBuilder.Entity("News.Entities.Booking", b =>
-                {
-                    b.HasOne("News.Entities.Car", "Cars")
-                        .WithMany("Bookings")
-                        .HasForeignKey("CarId");
-
-                    b.HasOne("News.Entities.User", "Users")
-                        .WithMany("Bookings")
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("Cars");
-
-                    b.Navigation("Users");
+                        .HasForeignKey("NewsId");
                 });
 
             modelBuilder.Entity("News.Entities.Category", b =>
                 {
                     b.HasOne("News.Entities.News", null)
                         .WithMany("Categories")
-                        .HasForeignKey("NewsUri");
-                });
-
-            modelBuilder.Entity("News.Entities.Concept", b =>
-                {
-                    b.HasOne("News.Entities.News", null)
-                        .WithMany("Concepts")
-                        .HasForeignKey("NewsUri");
-
-                    b.OwnsOne("News.Entities.Label", "Label", b1 =>
-                        {
-                            b1.Property<string>("ConceptUri")
-                                .HasColumnType("text");
-
-                            b1.Property<string>("Eng")
-                                .IsRequired()
-                                .HasColumnType("text");
-
-                            b1.HasKey("ConceptUri");
-
-                            b1.ToTable("Concept");
-
-                            b1.WithOwner()
-                                .HasForeignKey("ConceptUri");
-                        });
-
-                    b.OwnsOne("News.Entities.Location", "Location", b1 =>
-                        {
-                            b1.Property<string>("ConceptUri")
-                                .HasColumnType("text");
-
-                            b1.Property<string>("Type")
-                                .IsRequired()
-                                .HasColumnType("text");
-
-                            b1.HasKey("ConceptUri");
-
-                            b1.ToTable("Concept");
-
-                            b1.WithOwner()
-                                .HasForeignKey("ConceptUri");
-
-                            b1.OwnsOne("News.Entities.Country", "Country", b2 =>
-                                {
-                                    b2.Property<string>("LocationConceptUri")
-                                        .HasColumnType("text");
-
-                                    b2.Property<string>("Type")
-                                        .IsRequired()
-                                        .HasColumnType("text");
-
-                                    b2.HasKey("LocationConceptUri");
-
-                                    b2.ToTable("Concept");
-
-                                    b2.WithOwner()
-                                        .HasForeignKey("LocationConceptUri");
-
-                                    b2.OwnsOne("News.Entities.Label", "Label", b3 =>
-                                        {
-                                            b3.Property<string>("CountryLocationConceptUri")
-                                                .HasColumnType("text");
-
-                                            b3.Property<string>("Eng")
-                                                .IsRequired()
-                                                .HasColumnType("text");
-
-                                            b3.HasKey("CountryLocationConceptUri");
-
-                                            b3.ToTable("Concept");
-
-                                            b3.WithOwner()
-                                                .HasForeignKey("CountryLocationConceptUri");
-                                        });
-
-                                    b2.Navigation("Label")
-                                        .IsRequired();
-                                });
-
-                            b1.OwnsOne("News.Entities.Label", "Label", b2 =>
-                                {
-                                    b2.Property<string>("LocationConceptUri")
-                                        .HasColumnType("text");
-
-                                    b2.Property<string>("Eng")
-                                        .IsRequired()
-                                        .HasColumnType("text");
-
-                                    b2.HasKey("LocationConceptUri");
-
-                                    b2.ToTable("Concept");
-
-                                    b2.WithOwner()
-                                        .HasForeignKey("LocationConceptUri");
-                                });
-
-                            b1.Navigation("Country")
-                                .IsRequired();
-
-                            b1.Navigation("Label")
-                                .IsRequired();
-                        });
-
-                    b.OwnsOne("News.Entities.TrendingScore", "TrendingScore", b1 =>
-                        {
-                            b1.Property<string>("ConceptUri")
-                                .HasColumnType("text");
-
-                            b1.HasKey("ConceptUri");
-
-                            b1.ToTable("Concept");
-
-                            b1.WithOwner()
-                                .HasForeignKey("ConceptUri");
-
-                            b1.OwnsOne("News.Entities.NewsScore", "News", b2 =>
-                                {
-                                    b2.Property<string>("TrendingScoreConceptUri")
-                                        .HasColumnType("text");
-
-                                    b2.Property<int>("NullPopFq")
-                                        .HasColumnType("integer");
-
-                                    b2.Property<double>("Score")
-                                        .HasColumnType("double precision");
-
-                                    b2.Property<int>("TestPopFq")
-                                        .HasColumnType("integer");
-
-                                    b2.HasKey("TrendingScoreConceptUri");
-
-                                    b2.ToTable("Concept");
-
-                                    b2.WithOwner()
-                                        .HasForeignKey("TrendingScoreConceptUri");
-                                });
-
-                            b1.Navigation("News")
-                                .IsRequired();
-                        });
-
-                    b.Navigation("Label")
-                        .IsRequired();
-
-                    b.Navigation("Location")
-                        .IsRequired();
-
-                    b.Navigation("TrendingScore")
-                        .IsRequired();
+                        .HasForeignKey("NewsId");
                 });
 
             modelBuilder.Entity("News.Entities.News", b =>
                 {
                     b.HasOne("News.Entities.Source", "Source")
                         .WithMany()
-                        .HasForeignKey("SourceUri")
+                        .HasForeignKey("SourceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.OwnsOne("News.Entities.Location", "Location", b1 =>
                         {
-                            b1.Property<string>("NewsUri")
-                                .HasColumnType("text");
+                            b1.Property<Guid>("NewsId")
+                                .HasColumnType("uuid");
 
                             b1.Property<string>("Type")
                                 .IsRequired()
                                 .HasColumnType("text");
 
-                            b1.HasKey("NewsUri");
+                            b1.HasKey("NewsId");
 
                             b1.ToTable("News");
 
                             b1.WithOwner()
-                                .HasForeignKey("NewsUri");
+                                .HasForeignKey("NewsId");
 
                             b1.OwnsOne("News.Entities.Country", "Country", b2 =>
                                 {
-                                    b2.Property<string>("LocationNewsUri")
-                                        .HasColumnType("text");
+                                    b2.Property<Guid>("LocationNewsId")
+                                        .HasColumnType("uuid");
 
                                     b2.Property<string>("Type")
                                         .IsRequired()
                                         .HasColumnType("text");
 
-                                    b2.HasKey("LocationNewsUri");
+                                    b2.HasKey("LocationNewsId");
 
                                     b2.ToTable("News");
 
                                     b2.WithOwner()
-                                        .HasForeignKey("LocationNewsUri");
-
-                                    b2.OwnsOne("News.Entities.Label", "Label", b3 =>
-                                        {
-                                            b3.Property<string>("CountryLocationNewsUri")
-                                                .HasColumnType("text");
-
-                                            b3.Property<string>("Eng")
-                                                .IsRequired()
-                                                .HasColumnType("text");
-
-                                            b3.HasKey("CountryLocationNewsUri");
-
-                                            b3.ToTable("News");
-
-                                            b3.WithOwner()
-                                                .HasForeignKey("CountryLocationNewsUri");
-                                        });
-
-                                    b2.Navigation("Label")
-                                        .IsRequired();
+                                        .HasForeignKey("LocationNewsId");
                                 });
 
-                            b1.OwnsOne("News.Entities.Label", "Label", b2 =>
-                                {
-                                    b2.Property<string>("LocationNewsUri")
-                                        .HasColumnType("text");
-
-                                    b2.Property<string>("Eng")
-                                        .IsRequired()
-                                        .HasColumnType("text");
-
-                                    b2.HasKey("LocationNewsUri");
-
-                                    b2.ToTable("News");
-
-                                    b2.WithOwner()
-                                        .HasForeignKey("LocationNewsUri");
-                                });
-
-                            b1.Navigation("Country")
-                                .IsRequired();
-
-                            b1.Navigation("Label")
-                                .IsRequired();
+                            b1.Navigation("Country");
                         });
 
                     b.OwnsOne("News.Entities.Shares", "Shares", b1 =>
                         {
-                            b1.Property<string>("NewsUri")
-                                .HasColumnType("text");
+                            b1.Property<Guid>("NewsId")
+                                .HasColumnType("uuid");
 
                             b1.Property<int>("Facebook")
                                 .HasColumnType("integer");
 
-                            b1.HasKey("NewsUri");
+                            b1.HasKey("NewsId");
 
                             b1.ToTable("News");
 
                             b1.WithOwner()
-                                .HasForeignKey("NewsUri");
+                                .HasForeignKey("NewsId");
                         });
 
                     b.Navigation("Location")
@@ -610,116 +333,75 @@ namespace WebApi.Migrations
                 {
                     b.OwnsOne("News.Entities.Ranking", "Ranking", b1 =>
                         {
-                            b1.Property<string>("SourceUri")
-                                .HasColumnType("text");
+                            b1.Property<Guid>("SourceId")
+                                .HasColumnType("uuid");
 
                             b1.Property<int>("ImportanceRank")
                                 .HasColumnType("integer");
 
-                            b1.HasKey("SourceUri");
+                            b1.HasKey("SourceId");
 
-                            b1.ToTable("Source");
+                            b1.ToTable("Sources");
 
                             b1.WithOwner()
-                                .HasForeignKey("SourceUri");
+                                .HasForeignKey("SourceId");
                         });
 
                     b.OwnsOne("News.Entities.Location", "Location", b1 =>
                         {
-                            b1.Property<string>("SourceUri")
-                                .HasColumnType("text");
+                            b1.Property<Guid>("SourceId")
+                                .HasColumnType("uuid");
 
                             b1.Property<string>("Type")
                                 .IsRequired()
                                 .HasColumnType("text");
 
-                            b1.HasKey("SourceUri");
+                            b1.HasKey("SourceId");
 
-                            b1.ToTable("Source");
+                            b1.ToTable("Sources");
 
                             b1.WithOwner()
-                                .HasForeignKey("SourceUri");
+                                .HasForeignKey("SourceId");
 
                             b1.OwnsOne("News.Entities.Country", "Country", b2 =>
                                 {
-                                    b2.Property<string>("LocationSourceUri")
-                                        .HasColumnType("text");
+                                    b2.Property<Guid>("LocationSourceId")
+                                        .HasColumnType("uuid");
 
                                     b2.Property<string>("Type")
                                         .IsRequired()
                                         .HasColumnType("text");
 
-                                    b2.HasKey("LocationSourceUri");
+                                    b2.HasKey("LocationSourceId");
 
-                                    b2.ToTable("Source");
-
-                                    b2.WithOwner()
-                                        .HasForeignKey("LocationSourceUri");
-
-                                    b2.OwnsOne("News.Entities.Label", "Label", b3 =>
-                                        {
-                                            b3.Property<string>("CountryLocationSourceUri")
-                                                .HasColumnType("text");
-
-                                            b3.Property<string>("Eng")
-                                                .IsRequired()
-                                                .HasColumnType("text");
-
-                                            b3.HasKey("CountryLocationSourceUri");
-
-                                            b3.ToTable("Source");
-
-                                            b3.WithOwner()
-                                                .HasForeignKey("CountryLocationSourceUri");
-                                        });
-
-                                    b2.Navigation("Label")
-                                        .IsRequired();
-                                });
-
-                            b1.OwnsOne("News.Entities.Label", "Label", b2 =>
-                                {
-                                    b2.Property<string>("LocationSourceUri")
-                                        .HasColumnType("text");
-
-                                    b2.Property<string>("Eng")
-                                        .IsRequired()
-                                        .HasColumnType("text");
-
-                                    b2.HasKey("LocationSourceUri");
-
-                                    b2.ToTable("Source");
+                                    b2.ToTable("Sources");
 
                                     b2.WithOwner()
-                                        .HasForeignKey("LocationSourceUri");
+                                        .HasForeignKey("LocationSourceId");
                                 });
 
-                            b1.Navigation("Country")
-                                .IsRequired();
-
-                            b1.Navigation("Label")
-                                .IsRequired();
+                            b1.Navigation("Country");
                         });
 
-                    b.Navigation("Location")
-                        .IsRequired();
+                    b.Navigation("Location");
 
-                    b.Navigation("Ranking")
-                        .IsRequired();
+                    b.Navigation("Ranking");
                 });
 
             modelBuilder.Entity("News.Entities.Video", b =>
                 {
                     b.HasOne("News.Entities.News", null)
                         .WithMany("Videos")
-                        .HasForeignKey("NewsUri");
+                        .HasForeignKey("NewsId");
                 });
 
             modelBuilder.Entity("News.Entities.View", b =>
                 {
                     b.HasOne("News.Entities.News", "News")
                         .WithMany("Views")
-                        .HasForeignKey("NewsUri");
+                        .HasForeignKey("NewsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("News.Entities.User", "Users")
                         .WithMany("Views")
@@ -730,18 +412,11 @@ namespace WebApi.Migrations
                     b.Navigation("Users");
                 });
 
-            modelBuilder.Entity("News.Entities.Car", b =>
-                {
-                    b.Navigation("Bookings");
-                });
-
             modelBuilder.Entity("News.Entities.News", b =>
                 {
                     b.Navigation("Authors");
 
                     b.Navigation("Categories");
-
-                    b.Navigation("Concepts");
 
                     b.Navigation("Videos");
 
@@ -750,8 +425,6 @@ namespace WebApi.Migrations
 
             modelBuilder.Entity("News.Entities.User", b =>
                 {
-                    b.Navigation("Bookings");
-
                     b.Navigation("Views");
                 });
 #pragma warning restore 612, 618

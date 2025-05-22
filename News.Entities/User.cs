@@ -17,7 +17,6 @@ namespace News.Entities
         [JsonIgnore]
         public string? Password { get; set; } = null!;
         public int? Level { get; set; }
-        public ICollection<Booking> Bookings { get; set; }
         public ICollection<View> Views { get; set; }
     }
 }

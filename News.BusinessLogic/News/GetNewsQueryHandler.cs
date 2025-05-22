@@ -22,9 +22,8 @@ public class GetNewsQueryHandler(INewsDbContext context, IMapper mapper) : IRequ
                 .Take(request.Pagging.Count);
 
 
-        var vms = await entities
-            .ProjectTo<NewsLookupDto>(mapper.ConfigurationProvider)
-            .ToListAsync(cancellationToken: cancellationToken);
+        var entitiesList = await entities.ToListAsync(cancellationToken);
+        var vms = mapper.Map<List<NewsLookupDto>>(entitiesList);
 
         return new NewsVm { News = vms };
     }
@@ -58,6 +57,13 @@ public class NewsLookupDto : IMapWith<Entities.News>
 
     public void Mapping(Profile profile)
     {
+        profile.CreateMap<Entities.Location, Location>(); 
+        profile.CreateMap<Entities.Source, Source>(); 
+        profile.CreateMap<Entities.Author, Author>(); 
+        profile.CreateMap<Entities.Category, Category>();
+        profile.CreateMap<Entities.Video, Video>(); 
+        profile.CreateMap<Entities.Shares, Shares>(); 
+        profile.CreateMap<Entities.Ranking, Ranking>();
         profile.CreateMap<Entities.News, NewsLookupDto>();
     }
 }

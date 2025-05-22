@@ -12,13 +12,14 @@ namespace News.Infrastructure
         {
         }
 
-        public DbSet<Car> Cars => Set<Car>();
         public DbSet<User> Users => Set<User>();
         public DbSet<View> Views => Set<View>();
         public DbSet<Entities.News> News => Set<Entities.News>();
-
-        public DbSet<Booking> Bookings => Set<Booking>();
-
+        public DbSet<Author> Authors =>  Set<Author>();
+        public DbSet<Category> Categories =>  Set<Category>();
+        public DbSet<Video> Videos => Set<Video>();
+        public DbSet<Source> Sources => Set<Source>();
+        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             var converter = new ValueConverter<Dictionary<string, List<string>>, string>(

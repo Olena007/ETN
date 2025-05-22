@@ -1,6 +1,5 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using News.BusinessLogic.Cars;
 using News.BusinessLogic.View;
 using WebApi.Models;
 
