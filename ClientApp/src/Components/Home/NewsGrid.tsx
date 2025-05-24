@@ -9,8 +9,8 @@ import {
     Link,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import {Article} from "../../models/models";
 import {useNavigate} from "react-router-dom";
+import {NewsModel} from "../../models/models";
 
 const defaultImage = "https://akhbarhub.ir/public/default-image/default-1080x1000.png";
 
@@ -32,7 +32,7 @@ const Clamp = styled(Typography, {
     textOverflow: "ellipsis",
 }));
 
-export default function NewsGrid(props: {articles: Article[]}) {
+export default function NewsGrid(props: {articles: NewsModel[]}) {
     const navigate = useNavigate();
     const sideLeft = props.articles.filter((_, i) => i === 1 || i === 2);
     const sideRight = props.articles.slice(4, 7);

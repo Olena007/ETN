@@ -11,8 +11,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "News", "News\News.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "News.Infrastructure", "News.Infrastructure\News.Infrastructure.csproj", "{60C243E0-47B0-4749-8290-48976686BD8C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "News.Models", "News.Models\News.Models.csproj", "{9681B74C-D260-4839-BA11-D68407262488}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,10 +33,6 @@ Global
 		{60C243E0-47B0-4749-8290-48976686BD8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{60C243E0-47B0-4749-8290-48976686BD8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{60C243E0-47B0-4749-8290-48976686BD8C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9681B74C-D260-4839-BA11-D68407262488}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9681B74C-D260-4839-BA11-D68407262488}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9681B74C-D260-4839-BA11-D68407262488}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9681B74C-D260-4839-BA11-D68407262488}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

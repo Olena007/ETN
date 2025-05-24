@@ -5,12 +5,12 @@ using News.BusinessLogic.Interfaces;
 
 namespace News.BusinessLogic.View;
 
-public class UpdateViewCommandHandler(INewsDbContext context) :IRequestHandler<UpdateViewCommand>
+public class UpdateViewCommandHandler(INewsDbContext context) : IRequestHandler<UpdateViewCommand>
 {
     public async Task<Unit> Handle(UpdateViewCommand request, CancellationToken cancellationToken)
     {
         var entity = await context.Views
-            .FirstOrDefaultAsync(x => x.ViewId == request.ViewId, cancellationToken: cancellationToken);
+            .FirstOrDefaultAsync(x => x.ViewId == request.ViewId, cancellationToken);
 
         if (entity == null)
             throw new NotFoundException(nameof(View), request.ViewId!);

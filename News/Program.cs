@@ -1,20 +1,21 @@
+using System.Reflection;
 using News.BusinessLogic;
 using News.BusinessLogic.Common.Mappings;
 using News.BusinessLogic.Interfaces;
 using News.BusinessLogic.Token;
 using News.Infrastructure;
-using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+});
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c => {
-        c.CustomSchemaIds(type => type.FullName);
-});
+builder.Services.AddSwaggerGen(c => { c.CustomSchemaIds(type => type.FullName); });
 builder.Services.AddAutoMapper(config =>
 {
     config.AddProfile(new AssemblyMappingProfile(Assembly.GetExecutingAssembly()));
@@ -58,7 +59,8 @@ using (var scope = app.Services.CreateScope())
         var context = serviceProvider.GetRequiredService<NewsDbContext>();
     }
     catch
-    { }
+    {
+    }
 }
 
 app.Run();

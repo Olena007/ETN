@@ -1,7 +1,6 @@
-export interface Article {
+export interface NewsModel {
     uri: string;
     lang: string;
-    isDuplicate: boolean;
     date: string;
     time: string;
     dateTime: string;
@@ -10,27 +9,15 @@ export interface Article {
     title: string;
     body: string;
     source: Source;
+    authors: Author[];
     concepts: Concept[];
     categories: Category[];
     links: string[];
     videos: Video[];
     image: string;
-    duplicateList: string[];
-    originalArticle: Article | null;
     eventUri: string;
-    location: Location | null;
-    extractedDates: ExtractedDate[];
+    location: Location;
     shares: Shares;
-    wgt: number;
-    authors: Author[];
-}
-
-export interface ArticlesData {
-    totalResults: number;
-    page: number;
-    count: number;
-    pages: number;
-    results: Article[];
 }
 
 export interface Source {
@@ -38,7 +25,7 @@ export interface Source {
     dataType: string;
     title: string;
     description: string;
-    location: Location | null;
+    location: Location;
     locationValidated: boolean;
     ranking: Ranking;
 }
@@ -63,7 +50,14 @@ export interface Concept {
     label: Label;
     image: string;
     trendingScore: TrendingScore;
-    location: Location | null;
+    location: Location;
+}
+
+export interface Author {
+    uri: string;
+    name: string;
+    type: string;
+    isAgency: boolean;
 }
 
 export interface TrendingScore {
@@ -87,21 +81,6 @@ export interface Video {
     label: string;
 }
 
-export interface ExtractedDate {
-    amb: boolean;
-    imp: boolean;
-    date: string;
-    textStart: number;
-    textEnd: number;
-}
-
 export interface Shares {
     facebook: number;
-}
-
-export interface Author {
-    uri: string;
-    name: string;
-    type: string;
-    isAgency: boolean;
 }

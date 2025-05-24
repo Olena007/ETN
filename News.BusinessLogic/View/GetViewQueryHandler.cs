@@ -4,18 +4,17 @@ using Microsoft.EntityFrameworkCore;
 using News.BusinessLogic.Common.Exeptions;
 using News.BusinessLogic.Common.Mappings;
 using News.BusinessLogic.Interfaces;
-using News.Entities;
 
 namespace News.BusinessLogic.View;
 
-public class GetViewQueryHandler(INewsDbContext context, IMapper mapper): IRequestHandler<GetViewQuery, ViewVm>
+public class GetViewQueryHandler(INewsDbContext context, IMapper mapper) : IRequestHandler<GetViewQuery, ViewVm>
 {
     public async Task<ViewVm> Handle(GetViewQuery request, CancellationToken cancellationToken)
     {
         var entity = await context.Views
             .Include(x => x.News)
             .Include(x => x.Users)
-            .FirstOrDefaultAsync(x => x.ViewId == request.ViewId, cancellationToken: cancellationToken);
+            .FirstOrDefaultAsync(x => x.ViewId == request.ViewId, cancellationToken);
 
         if (entity == null)
             throw new NotFoundException(nameof(View), request.ViewId);

@@ -1,23 +1,26 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using News.BusinessLogic.Interfaces;
 using News.BusinessLogic.News;
 using News.Entities;
-using News.Models;
 using Newtonsoft.Json.Linq;
-using Location = News.Entities.Location;
+using NewsModel = News.BusinessLogic.News.NewsModel;
 
 namespace WebApi.Controllers;
 
 public class NewsController(INewsDbContext context) : BaseController
 {
-    [HttpPost("getAll")]
-    public async Task<ActionResult<NewsVm>> GetAll([FromBody] GetNewsQuery query)
+    [HttpPost]
+    public async Task<IActionResult> GetAll([FromBody] GetNewsQuery query)
     {
-        return Ok(await Mediator.Send(query));
+        var result = await Mediator.Send(query);
+        if (result.News == null || !result.News.Any())
+            return NotFound(); // 404, если пусто
+
+        return Ok(result); // 200 с данными
     }
 
-    [HttpGet("get")]
+
+    [HttpGet]
     public IActionResult Get()
     {
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Infrastructure", "articles.json");
@@ -91,32 +94,126 @@ public class NewsController(INewsDbContext context) : BaseController
         var json = await System.IO.File.ReadAllTextAsync(filePath);
         var jObject = JObject.Parse(json);
 
-        var articles = jObject["articles"]?["results"]?.ToObject<List<News.Entities.News>>();
+        var articles = jObject["articles"]?["results"]?.ToObject<List<NewsJsonDto>>();
 
         if (articles == null || !articles.Any())
             return BadRequest("Нет данных для импорта.");
-        
+
         context.Authors.RemoveRange(context.Authors);
         context.Categories.RemoveRange(context.Categories);
         context.Videos.RemoveRange(context.Videos);
         context.Views.RemoveRange(context.Views);
         context.News.RemoveRange(context.News);
         await context.SaveChangesAsync(token);
-        
-        var existingCategories = await context.Categories.ToDictionaryAsync(c => c.Uri, token);
-        
-        foreach (var article in articles)
+
+        foreach (var dto in articles)
         {
-            var exists = await context.News.AnyAsync(a => a.Uri == article.Uri, token);
-            if (exists) continue;
+            var newsId = Guid.NewGuid();
+            var news = new News.Entities.News
+            {
+                NewsId = newsId,
+                Uri = dto.Uri,
+                Lang = dto.Lang,
+                Date = dto.Date,
+                Time = dto.Time,
+                DateTime = dto.DateTime,
+                Sim = dto.Sim,
+                Url = dto.Url,
+                Title = dto.Title,
+                Body = dto.Body,
+                Links = dto.Links ?? new List<string>(),
+                Image = dto.Image ?? "",
+                EventUri = dto.EventUri,
+                Authors = dto.Authors?.Select(a => new Author
+                {
+                    AuthorId = Guid.NewGuid(),
+                    NewsId = newsId,
+                    Uri = a.Uri,
+                    Name = a.Name,
+                    Type = a.Type,
+                    IsAgency = a.IsAgency
+                }).ToList() ?? new List<Author>(),
 
-            article.Image ??= "";
+                Categories = dto.Categories?.Select(c => new Category
+                {
+                    CategoryId = Guid.NewGuid(),
+                    NewsId = newsId,
+                    Uri = c.Uri,
+                    Label = c.Label,
+                    Wgt = c.Wgt
+                }).ToList() ?? new List<Category>(),
 
-            context.News.Add(article);
+                Source = dto.Source != null
+                    ? new List<Source>
+                    {
+                        new()
+                        {
+                            SourceId = Guid.NewGuid(),
+                            NewsId = newsId,
+                            Uri = dto.Source.Uri,
+                            DataType = dto.Source.DataType,
+                            Title = dto.Source.Title,
+                            Description = dto.Source.Description,
+                            LocationValidated = false
+                        }
+                    }
+                    : new List<Source>()
+            };
+
+            context.News.Add(news);
         }
 
         await context.SaveChangesAsync(token);
 
         return Ok($"{articles.Count} статей импортировано.");
     }
+}
+
+public class NewsJsonDto
+{
+    public string Uri { get; set; }
+    public string Lang { get; set; }
+    public string Date { get; set; }
+    public string Time { get; set; }
+    public string DateTime { get; set; }
+    public double Sim { get; set; }
+    public string Url { get; set; }
+    public string Title { get; set; }
+    public string Body { get; set; }
+    public List<string> Links { get; set; }
+    public string? Image { get; set; }
+    public string? EventUri { get; set; }
+    public List<AuthorJsonDto> Authors { get; set; }
+    public List<CategoryJsonDto> Categories { get; set; }
+    public List<VideoJsonDto> Videos { get; set; } // если будут
+    public SourceJsonDto Source { get; set; }
+}
+
+public class AuthorJsonDto
+{
+    public string Uri { get; set; }
+    public string Name { get; set; }
+    public string Type { get; set; }
+    public bool IsAgency { get; set; }
+}
+
+public class CategoryJsonDto
+{
+    public string Uri { get; set; }
+    public string Label { get; set; }
+    public int Wgt { get; set; }
+}
+
+public class SourceJsonDto
+{
+    public string Uri { get; set; }
+    public string DataType { get; set; }
+    public string Title { get; set; }
+    public string Description { get; set; }
+}
+
+public class VideoJsonDto
+{
+    public string Uri { get; set; }
+    public string? Label { get; set; }
 }

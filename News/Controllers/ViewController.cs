@@ -9,9 +9,11 @@ namespace WebApi.Controllers;
 public class ViewController(IMapper mapper) : BaseController
 {
     [HttpPost]
-    public async Task<ActionResult<ViewsVm>> GetAll(GetViewsQuery query) 
-        =>  Ok(await Mediator.Send(query));
-    
+    public async Task<ActionResult<ViewsVm>> GetAll(GetViewsQuery query)
+    {
+        return Ok(await Mediator.Send(query));
+    }
+
     [HttpGet("{id}")]
     public async Task<ActionResult<ViewVm>> Get(Guid id)
     {
@@ -19,28 +21,28 @@ public class ViewController(IMapper mapper) : BaseController
         {
             ViewId = id
         };
-        
+
         return Ok(await Mediator.Send(query));
     }
-    
+
     [HttpPost]
     public async Task<ActionResult<Guid>> Create([FromBody] CreateViewCommandDto commandDto)
     {
         var command = mapper.Map<CreateViewCommand>(commandDto);
         return Ok(await Mediator.Send(command));
     }
-    
+
     [HttpDelete]
     public async Task<IActionResult> Delete(Guid id)
     {
         var command = new DeleteViewCommand
         {
-            Id = id,
+            Id = id
         };
         await Mediator.Send(command);
         return NoContent();
     }
-    
+
     [HttpPut]
     public async Task<IActionResult> Update([FromBody] UpdateViewCommandDto commandDto)
     {

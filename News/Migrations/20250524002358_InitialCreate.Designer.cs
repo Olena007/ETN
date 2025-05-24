@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using News.Infrastructure;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace WebApi.Migrations
 {
     [DbContext(typeof(NewsDbContext))]
-    partial class NewsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250524002358_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -99,7 +102,7 @@ namespace WebApi.Migrations
 
             modelBuilder.Entity("News.Entities.Location", b =>
                 {
-                    b.Property<Guid>("LocationId")
+                    b.Property<Guid>("CountryId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -109,7 +112,7 @@ namespace WebApi.Migrations
                     b.Property<string>("Type")
                         .HasColumnType("text");
 
-                    b.HasKey("LocationId");
+                    b.HasKey("CountryId");
 
                     b.HasIndex("NewsId");
 
@@ -184,7 +187,7 @@ namespace WebApi.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("LocationId")
+                    b.Property<Guid?>("LocationCountryId")
                         .HasColumnType("uuid");
 
                     b.Property<bool?>("LocationValidated")
@@ -202,7 +205,7 @@ namespace WebApi.Migrations
 
                     b.HasKey("SourceId");
 
-                    b.HasIndex("LocationId");
+                    b.HasIndex("LocationCountryId");
 
                     b.HasIndex("NewsId");
 
@@ -337,7 +340,7 @@ namespace WebApi.Migrations
                 {
                     b.HasOne("News.Entities.Location", "Location")
                         .WithMany()
-                        .HasForeignKey("LocationId");
+                        .HasForeignKey("LocationCountryId");
 
                     b.HasOne("News.Entities.News", "News")
                         .WithMany("Source")

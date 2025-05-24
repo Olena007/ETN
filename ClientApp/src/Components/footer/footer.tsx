@@ -1,5 +1,4 @@
 import React, {useEffect, useState} from "react";
-import {Article} from "../../models/models";
 import {useNavigate, useParams} from "react-router-dom";
 import {Box, Button, Card, CardContent, CardMedia, Grid, Typography} from "@mui/material";
 

@@ -1,9 +1,9 @@
 import {Box, Card, CardContent, CardMedia, Grid, Typography} from "@mui/material";
 import React, {useEffect, useState} from "react";
-import {Article} from "../../models/models";
 import {useNavigate, useParams} from "react-router-dom";
 import "./single-news.css"
 import {styled} from "@mui/material/styles";
+import {NewsModel} from "../../models/models";
 
 function formatTime(iso: any): string {
     const date = new Date(iso);
@@ -26,9 +26,9 @@ const Clamp = styled(Typography, {
 const defaultImage = "https://akhbarhub.ir/public/default-image/default-1080x1000.png";
 
 export default function SingleNews() {
-    const [article, setArticle] = useState<Article>();
-    const [related, setRelated] = useState<Article[]>([]);
-    const [more, setMore] = useState<Article[]>([]);
+    const [article, setArticle] = useState<NewsModel>();
+    const [related, setRelated] = useState<NewsModel[]>([]);
+    const [more, setMore] = useState<NewsModel[]>([]);
     const {id} = useParams();
     const sideRelated = related?.slice(0, 4);
     const navigate = useNavigate();
@@ -99,10 +99,10 @@ export default function SingleNews() {
                             {formatTime(article?.date.toString())}
                         </Typography>
                         <Typography sx={{marginTop: "15px"}} fontWeight={750}>
-                            {article?.authors.map(x => x.name)}
+                            {article?.authors.map((x: { name: any; }) => x.name)}
                         </Typography>
                         <Typography color="text.disabled">
-                            {article?.authors.map(x => x.uri)}
+                            {article?.authors.map((x: { uri: any; }) => x.uri)}
                         </Typography>
                     </Box>
                     <Box className="image-layout">
@@ -115,7 +115,7 @@ export default function SingleNews() {
                     </Box>
                     <Box className="layout">
                         <Typography variant="body1" mt={1}>
-                            {article?.body.split('\n').map((line, index) => (
+                            {article?.body.split('\n').map((line: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined, index: React.Key | null | undefined) => (
                                 <span key={index}>
                                     {line}
                                     <br/>

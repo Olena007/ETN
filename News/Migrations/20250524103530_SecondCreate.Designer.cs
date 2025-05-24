@@ -13,8 +13,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace WebApi.Migrations
 {
     [DbContext(typeof(NewsDbContext))]
-    [Migration("20250520211841_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250524103530_SecondCreate")]
+    partial class SecondCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -28,7 +28,7 @@ namespace WebApi.Migrations
 
             modelBuilder.Entity("News.Entities.Author", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("AuthorId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -38,7 +38,7 @@ namespace WebApi.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("NewsId")
+                    b.Property<Guid>("NewsId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Type")
@@ -48,7 +48,7 @@ namespace WebApi.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("Id");
+                    b.HasKey("AuthorId");
 
                     b.HasIndex("NewsId");
 
@@ -57,14 +57,14 @@ namespace WebApi.Migrations
 
             modelBuilder.Entity("News.Entities.Category", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("CategoryId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("Label")
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("NewsId")
+                    b.Property<Guid>("NewsId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Uri")
@@ -74,16 +74,54 @@ namespace WebApi.Migrations
                     b.Property<int?>("Wgt")
                         .HasColumnType("integer");
 
-                    b.HasKey("Id");
+                    b.HasKey("CategoryId");
 
                     b.HasIndex("NewsId");
 
                     b.ToTable("Categories");
                 });
 
+            modelBuilder.Entity("News.Entities.Country", b =>
+                {
+                    b.Property<Guid>("CountryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("LocationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Type")
+                        .HasColumnType("text");
+
+                    b.HasKey("CountryId");
+
+                    b.HasIndex("LocationId");
+
+                    b.ToTable("Country");
+                });
+
+            modelBuilder.Entity("News.Entities.Location", b =>
+                {
+                    b.Property<Guid>("LocationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("NewsId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Type")
+                        .HasColumnType("text");
+
+                    b.HasKey("LocationId");
+
+                    b.HasIndex("NewsId");
+
+                    b.ToTable("Location");
+                });
+
             modelBuilder.Entity("News.Entities.News", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("NewsId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -116,9 +154,6 @@ namespace WebApi.Migrations
                     b.Property<double>("Sim")
                         .HasColumnType("double precision");
 
-                    b.Property<Guid>("SourceId")
-                        .HasColumnType("uuid");
-
                     b.Property<string>("Time")
                         .IsRequired()
                         .HasColumnType("text");
@@ -135,16 +170,14 @@ namespace WebApi.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("SourceId");
+                    b.HasKey("NewsId");
 
                     b.ToTable("News");
                 });
 
             modelBuilder.Entity("News.Entities.Source", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("SourceId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -154,8 +187,14 @@ namespace WebApi.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
+                    b.Property<Guid?>("LocationId")
+                        .HasColumnType("uuid");
+
                     b.Property<bool?>("LocationValidated")
                         .HasColumnType("boolean");
+
+                    b.Property<Guid>("NewsId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Title")
                         .HasColumnType("text");
@@ -164,7 +203,11 @@ namespace WebApi.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("Id");
+                    b.HasKey("SourceId");
+
+                    b.HasIndex("LocationId");
+
+                    b.HasIndex("NewsId");
 
                     b.ToTable("Sources");
                 });
@@ -200,21 +243,21 @@ namespace WebApi.Migrations
 
             modelBuilder.Entity("News.Entities.Video", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("VideoId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("Label")
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("NewsId")
+                    b.Property<Guid>("NewsId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Uri")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("Id");
+                    b.HasKey("VideoId");
 
                     b.HasIndex("NewsId");
 
@@ -251,151 +294,74 @@ namespace WebApi.Migrations
 
             modelBuilder.Entity("News.Entities.Author", b =>
                 {
-                    b.HasOne("News.Entities.News", null)
+                    b.HasOne("News.Entities.News", "News")
                         .WithMany("Authors")
-                        .HasForeignKey("NewsId");
+                        .HasForeignKey("NewsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("News");
                 });
 
             modelBuilder.Entity("News.Entities.Category", b =>
                 {
-                    b.HasOne("News.Entities.News", null)
+                    b.HasOne("News.Entities.News", "News")
                         .WithMany("Categories")
-                        .HasForeignKey("NewsId");
-                });
-
-            modelBuilder.Entity("News.Entities.News", b =>
-                {
-                    b.HasOne("News.Entities.Source", "Source")
-                        .WithMany()
-                        .HasForeignKey("SourceId")
+                        .HasForeignKey("NewsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.OwnsOne("News.Entities.Location", "Location", b1 =>
-                        {
-                            b1.Property<Guid>("NewsId")
-                                .HasColumnType("uuid");
+                    b.Navigation("News");
+                });
 
-                            b1.Property<string>("Type")
-                                .IsRequired()
-                                .HasColumnType("text");
-
-                            b1.HasKey("NewsId");
-
-                            b1.ToTable("News");
-
-                            b1.WithOwner()
-                                .HasForeignKey("NewsId");
-
-                            b1.OwnsOne("News.Entities.Country", "Country", b2 =>
-                                {
-                                    b2.Property<Guid>("LocationNewsId")
-                                        .HasColumnType("uuid");
-
-                                    b2.Property<string>("Type")
-                                        .IsRequired()
-                                        .HasColumnType("text");
-
-                                    b2.HasKey("LocationNewsId");
-
-                                    b2.ToTable("News");
-
-                                    b2.WithOwner()
-                                        .HasForeignKey("LocationNewsId");
-                                });
-
-                            b1.Navigation("Country");
-                        });
-
-                    b.OwnsOne("News.Entities.Shares", "Shares", b1 =>
-                        {
-                            b1.Property<Guid>("NewsId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<int>("Facebook")
-                                .HasColumnType("integer");
-
-                            b1.HasKey("NewsId");
-
-                            b1.ToTable("News");
-
-                            b1.WithOwner()
-                                .HasForeignKey("NewsId");
-                        });
-
-                    b.Navigation("Location")
+            modelBuilder.Entity("News.Entities.Country", b =>
+                {
+                    b.HasOne("News.Entities.Location", "Location")
+                        .WithMany("Country")
+                        .HasForeignKey("LocationId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Shares")
+                    b.Navigation("Location");
+                });
+
+            modelBuilder.Entity("News.Entities.Location", b =>
+                {
+                    b.HasOne("News.Entities.News", "News")
+                        .WithMany("Location")
+                        .HasForeignKey("NewsId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Source");
+                    b.Navigation("News");
                 });
 
             modelBuilder.Entity("News.Entities.Source", b =>
                 {
-                    b.OwnsOne("News.Entities.Ranking", "Ranking", b1 =>
-                        {
-                            b1.Property<Guid>("SourceId")
-                                .HasColumnType("uuid");
+                    b.HasOne("News.Entities.Location", "Location")
+                        .WithMany()
+                        .HasForeignKey("LocationId");
 
-                            b1.Property<int>("ImportanceRank")
-                                .HasColumnType("integer");
-
-                            b1.HasKey("SourceId");
-
-                            b1.ToTable("Sources");
-
-                            b1.WithOwner()
-                                .HasForeignKey("SourceId");
-                        });
-
-                    b.OwnsOne("News.Entities.Location", "Location", b1 =>
-                        {
-                            b1.Property<Guid>("SourceId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<string>("Type")
-                                .IsRequired()
-                                .HasColumnType("text");
-
-                            b1.HasKey("SourceId");
-
-                            b1.ToTable("Sources");
-
-                            b1.WithOwner()
-                                .HasForeignKey("SourceId");
-
-                            b1.OwnsOne("News.Entities.Country", "Country", b2 =>
-                                {
-                                    b2.Property<Guid>("LocationSourceId")
-                                        .HasColumnType("uuid");
-
-                                    b2.Property<string>("Type")
-                                        .IsRequired()
-                                        .HasColumnType("text");
-
-                                    b2.HasKey("LocationSourceId");
-
-                                    b2.ToTable("Sources");
-
-                                    b2.WithOwner()
-                                        .HasForeignKey("LocationSourceId");
-                                });
-
-                            b1.Navigation("Country");
-                        });
+                    b.HasOne("News.Entities.News", "News")
+                        .WithMany("Source")
+                        .HasForeignKey("NewsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Location");
 
-                    b.Navigation("Ranking");
+                    b.Navigation("News");
                 });
 
             modelBuilder.Entity("News.Entities.Video", b =>
                 {
-                    b.HasOne("News.Entities.News", null)
+                    b.HasOne("News.Entities.News", "News")
                         .WithMany("Videos")
-                        .HasForeignKey("NewsId");
+                        .HasForeignKey("NewsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("News");
                 });
 
             modelBuilder.Entity("News.Entities.View", b =>
@@ -415,11 +381,20 @@ namespace WebApi.Migrations
                     b.Navigation("Users");
                 });
 
+            modelBuilder.Entity("News.Entities.Location", b =>
+                {
+                    b.Navigation("Country");
+                });
+
             modelBuilder.Entity("News.Entities.News", b =>
                 {
                     b.Navigation("Authors");
 
                     b.Navigation("Categories");
+
+                    b.Navigation("Location");
+
+                    b.Navigation("Source");
 
                     b.Navigation("Videos");
 

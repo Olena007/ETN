@@ -5,12 +5,12 @@ using News.BusinessLogic.Interfaces;
 
 namespace News.BusinessLogic.View;
 
-public class DeleteViewCommandHandler(INewsDbContext context): IRequestHandler<DeleteViewCommand>
+public class DeleteViewCommandHandler(INewsDbContext context) : IRequestHandler<DeleteViewCommand>
 {
     public async Task<Unit> Handle(DeleteViewCommand request, CancellationToken cancellationToken)
     {
         var entity = await context.Views
-            .FirstOrDefaultAsync(x => x.ViewId == request.Id, cancellationToken: cancellationToken);
+            .FirstOrDefaultAsync(x => x.ViewId == request.Id, cancellationToken);
 
         if (entity == null)
             throw new NotFoundException(nameof(View), request.Id);
