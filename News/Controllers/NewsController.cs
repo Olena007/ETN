@@ -14,26 +14,21 @@ public class NewsController(INewsDbContext context) : BaseController
     {
         var result = await Mediator.Send(query);
         if (result.News == null || !result.News.Any())
-            return NotFound(); // 404, если пусто
+            return NotFound(); 
 
-        return Ok(result); // 200 с данными
+        return Ok(result); 
     }
 
 
-    [HttpGet]
-    public IActionResult Get()
+    [HttpGet("{id}")]
+    public async Task<ActionResult<NewsModel>> Get(Guid id)
     {
-        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Infrastructure", "articles.json");
+        var query = new GetSingleNewsQuery()
+        {
+            NewsId = id
+        };
 
-        if (!System.IO.File.Exists(filePath))
-            return NotFound("Файл articles.json не найден.");
-
-        var json = System.IO.File.ReadAllText(filePath);
-        var jObject = JObject.Parse(json);
-
-        var articles = jObject["articles"]?["results"]?.ToObject<List<NewsModel>>();
-
-        return Ok(articles);
+        return Ok(await Mediator.Send(query));
     }
 
     [HttpGet("by-uri")]
