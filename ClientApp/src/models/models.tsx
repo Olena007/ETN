@@ -1,4 +1,9 @@
-export interface NewsModel {
+// Тип для Guid
+type Guid = string;
+
+// Главная новость
+export interface News {
+    newsId: Guid;
     uri: string;
     lang: string;
     date: string;
@@ -8,79 +13,73 @@ export interface NewsModel {
     url: string;
     title: string;
     body: string;
-    source: Source;
-    authors: Author[];
-    concepts: Concept[];
-    categories: Category[];
     links: string[];
+    image?: string;
+    eventUri?: string;
+    views: View[];
+    authors: Author[];
+    categories: Category[];
+    source: Source[];
     videos: Video[];
-    image: string;
-    eventUri: string;
-    location: Location;
-    shares: Shares;
+    location: Location[];
 }
 
 export interface Source {
+    sourceId: Guid;
+    newsId: Guid;
     uri: string;
-    dataType: string;
-    title: string;
-    description: string;
-    location: Location;
-    locationValidated: boolean;
-    ranking: Ranking;
+    dataType?: string;
+    title?: string;
+    description?: string;
+    location?: Location;
+    locationValidated?: boolean;
+    news: News;
 }
 
 export interface Location {
-    type: string;
-    label: Label;
+    locationId: Guid;
+    newsId: Guid;
+    type?: string;
+    news: News;
+    country: Country[];
 }
 
-export interface Label {
-    eng: string;
-}
-
-export interface Ranking {
-    importanceRank: number;
-}
-
-export interface Concept {
-    uri: string;
-    type: string;
-    score: number;
-    label: Label;
-    image: string;
-    trendingScore: TrendingScore;
+export interface Country {
+    countryId: Guid;
+    locationId: Guid;
+    type?: string;
     location: Location;
 }
 
-export interface Author {
-    uri: string;
-    name: string;
-    type: string;
-    isAgency: boolean;
-}
-
-export interface TrendingScore {
-    news: NewsScore;
-}
-
-export interface NewsScore {
-    score: number;
-    testPopFq: number;
-    nullPopFq: number;
-}
-
 export interface Category {
+    categoryId: Guid;
+    newsId: Guid;
     uri: string;
-    label: string;
-    wgt: number;
+    label?: string;
+    wgt?: number;
+    news: News;
+}
+
+export interface Author {
+    authorId: Guid;
+    newsId: Guid;
+    uri: string;
+    name?: string;
+    type?: string;
+    isAgency?: boolean;
+    news: News;
 }
 
 export interface Video {
+    videoId: Guid;
+    newsId: Guid;
     uri: string;
-    label: string;
+    label?: string;
+    news: News;
 }
 
-export interface Shares {
-    facebook: number;
+export interface View {
+    // Структура View не указана в C# — добавь нужные поля сам
+    viewId: Guid;
+    // ...
 }

@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import {useNavigate} from "react-router-dom";
-import {NewsModel} from "../../models/models";
+import {News} from "../../models/models";
 
 const defaultImage = "https://akhbarhub.ir/public/default-image/default-1080x1000.png";
 
@@ -32,10 +32,11 @@ const Clamp = styled(Typography, {
     textOverflow: "ellipsis",
 }));
 
-export default function NewsGrid(props: {articles: NewsModel[]}) {
+export default function NewsGrid(props: {articles: News[]}) {
     const navigate = useNavigate();
-    const sideLeft = props.articles.filter((_, i) => i === 1 || i === 2);
-    const sideRight = props.articles.slice(4, 7);
+    
+    const sideLeft = props.articles?.filter((_, i) => i === 1 || i === 2);
+    const sideRight = props.articles?.slice(4, 7);
 
     const thirdArticle = props.articles[3];
 
@@ -44,48 +45,62 @@ export default function NewsGrid(props: {articles: NewsModel[]}) {
     };
 
     return (
-        <Box sx={{ p: 2, textAlign: "left", fontFamily: "Georgia, serif", marginLeft: "150px", marginTop: "50px", marginRight: "150px" }}>
-            <Grid container spacing={2}>
+        <Box
+            sx={{
+                p: 2,
+                px: 4,   
+                fontFamily: "Georgia, serif",
+                mx: "auto",
+                mt: 6,
+                maxWidth: "1200px",
+                textAlign: "left",
+            }}>
+            <Grid container spacing={3}>
+                {/* Левая колонка */}
                 <Grid item xs={12} md={3}>
-                    <Grid container direction="column" spacing={2}>
+                    <Grid container direction="column" spacing={3} >
                         {sideLeft.map((article, index) => (
-                            <Grid item key={index} >
-                                <Card  onClick={() => goToNews(article.uri)}
-                                    sx={{
-                                    display: "flex",
-                                    flexDirection: "column", cursor: 'pointer',
-                                    boxShadow: "none",
-                                    borderRadius: 0 }} >
+                            <Grid item key={index} wrap="wrap">
+                                <Box onClick={() => goToNews(article.uri)} sx={{ cursor: "pointer" }}>
                                     <CardMedia
                                         component="img"
-                                        height="140"
+                                        height="150"
                                         image={article.image || defaultImage}
                                         alt={article.title}
                                     />
-                                    <CardContent sx={{ p: 1.5 }}>
-                                        <Clamp variant="subtitle1" lines={2} fontWeight={600}>
-                                            {article.title}
-                                        </Clamp>
-                                        <Clamp variant="body2" color="text.secondary" lines={3}>
+                                    <Typography variant="subtitle1" fontWeight={600}>
+                                        {article.title}
+                                    </Typography>
+                                    {article.body && (
+                                        <Clamp
+                                            variant="body2"
+                                            color="text.secondary"
+                                            lines={3}
+                                            sx={{ mt: 0.5, wordBreak: 'break-word' }}
+                                        >
                                             {article.body}
                                         </Clamp>
-                                        <Typography variant="caption" color="text.disabled" mt={1}>
-                                            {formatTime(article.date.toString())} &nbsp;|&nbsp; 
-                                        </Typography>
-                                    </CardContent>
-                                </Card>
+                                    )}
+                                    <Typography variant="caption" color="text.disabled">
+                                        {formatTime(article.date.toString())}
+                                    </Typography>
+                                </Box>
                             </Grid>
                         ))}
                     </Grid>
                 </Grid>
 
-                <Grid item xs={12} md={6}>
+                {/* Центральная большая новость */}
+                <Grid item xs={12} md={5}>
                     {thirdArticle && (
-                        <Card onClick={() => goToNews(thirdArticle.uri)} sx={{
-                            boxShadow: "none",
-                            borderRadius: 0,
-                            cursor: 'pointer'
-                        }}>
+                        <Card
+                            onClick={() => goToNews(thirdArticle.uri)}
+                            sx={{
+                                boxShadow: "none",
+                                borderRadius: 0,
+                                cursor: "pointer",
+                            }}
+                        >
                             <CardMedia
                                 component="img"
                                 height="300"
@@ -100,18 +115,19 @@ export default function NewsGrid(props: {articles: NewsModel[]}) {
                                     {thirdArticle.body}
                                 </Clamp>
                                 <Typography variant="caption" color="text.disabled" mt={2}>
-                                    {formatTime(thirdArticle.date.toString())} &nbsp;|&nbsp; 
+                                    {formatTime(thirdArticle.date.toString())}
                                 </Typography>
                             </CardContent>
                         </Card>
                     )}
                 </Grid>
 
+                {/* Правая колонка */}
                 <Grid item xs={12} md={3}>
-                    <Grid container direction="column" spacing={2}>
+                    <Grid container direction="column" spacing={3}>
                         {sideRight.map((article, index) => (
                             <Grid item key={index}>
-                                <Box onClick={() => goToNews(article.uri)} sx={{cursor: 'pointer'}}>
+                                <Box onClick={() => goToNews(article.uri)} sx={{ cursor: "pointer" }}>
                                     <Typography variant="subtitle1" fontWeight={600}>
                                         {article.title}
                                     </Typography>
@@ -126,7 +142,7 @@ export default function NewsGrid(props: {articles: NewsModel[]}) {
                                         </Clamp>
                                     )}
                                     <Typography variant="caption" color="text.disabled">
-                                        {formatTime(article.date.toString())} &nbsp;|&nbsp; 
+                                        {formatTime(article.date.toString())}
                                     </Typography>
                                 </Box>
                             </Grid>

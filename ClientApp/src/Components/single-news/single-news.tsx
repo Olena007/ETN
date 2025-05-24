@@ -3,7 +3,7 @@ import React, {useEffect, useState} from "react";
 import {useNavigate, useParams} from "react-router-dom";
 import "./single-news.css"
 import {styled} from "@mui/material/styles";
-import {NewsModel} from "../../models/models";
+import {News} from "../../models/models";
 
 function formatTime(iso: any): string {
     const date = new Date(iso);
@@ -26,9 +26,9 @@ const Clamp = styled(Typography, {
 const defaultImage = "https://akhbarhub.ir/public/default-image/default-1080x1000.png";
 
 export default function SingleNews() {
-    const [article, setArticle] = useState<NewsModel>();
-    const [related, setRelated] = useState<NewsModel[]>([]);
-    const [more, setMore] = useState<NewsModel[]>([]);
+    const [article, setArticle] = useState<News>();
+    const [related, setRelated] = useState<News[]>([]);
+    const [more, setMore] = useState<News[]>([]);
     const {id} = useParams();
     const sideRelated = related?.slice(0, 4);
     const navigate = useNavigate();
@@ -99,7 +99,7 @@ export default function SingleNews() {
                             {formatTime(article?.date.toString())}
                         </Typography>
                         <Typography sx={{marginTop: "15px"}} fontWeight={750}>
-                            {article?.authors.map((x: { name: any; }) => x.name)}
+                            {article?.authors.map(x => x.name)}
                         </Typography>
                         <Typography color="text.disabled">
                             {article?.authors.map((x: { uri: any; }) => x.uri)}
