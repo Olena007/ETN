@@ -1,46 +1,42 @@
-﻿using News.Entities;
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using News.BusinessLogic.Common.Exeptions;
 using News.BusinessLogic.Interfaces;
+using News.Entities;
 
-namespace News.BusinessLogic.Users
+namespace News.BusinessLogic.Users;
+
+public class DeleteUser
 {
-    public class DeleteUser
+    public class DeleteUserCommand : IRequest, IRequest<Unit>
     {
-        public class DeleteUserCommand : IRequest
+        public Guid Id { get; set; }
+    }
+
+    public class DeleteUserCommandHandler : IRequestHandler<DeleteUserCommand, Unit>
+    {
+        private readonly INewsDbContext _context;
+
+        public DeleteUserCommandHandler(INewsDbContext context)
         {
-            public Guid Id { get; set; }
+            _context = context;
         }
 
-        public class DeleteUserCommandHandler : IRequestHandler<DeleteUserCommand>
+        public async Task<Unit> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
         {
+            var entity = await _context.Users
+                .FirstOrDefaultAsync(x => x.Id == request.Id);
 
-            private readonly INewsDbContext _context;
+            if (entity == null)
+                throw new NotFoundException(nameof(User), request.Id);
 
-            public DeleteUserCommandHandler(INewsDbContext context)
-            {
-                _context = context;
-            }
+            _context.Users.Remove(entity);
+            await _context.SaveChangesAsync(cancellationToken);
 
-            public async Task<Unit> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
-            {
-                var entity = await _context.Users
-                    .FirstOrDefaultAsync(x => x.UserId == request.Id);
-
-                if (entity == null)
-                    throw new NotFoundException(nameof(User), request.Id);
-
-                _context.Users.Remove(entity);
-                await _context.SaveChangesAsync(cancellationToken);
-
-                return Unit.Value;
-            }
+            return Unit.Value;
         }
     }
 }

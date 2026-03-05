@@ -1,53 +1,51 @@
-﻿using BCrypt.Net;
-using News.Entities;
-using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
+using MediatR;
 using News.BusinessLogic.Interfaces;
+using News.Entities;
+using News.Enums;
 
-namespace News.BusinessLogic.Users
+namespace News.BusinessLogic.Users;
+
+public class CreateUser
 {
-    public class CreateUser
+    public class CreateUserCommand : IRequest<Guid>
     {
-        public class CreateUserCommand : IRequest<Guid>
+        public string UserName { get; set; } = null!;
+
+        public string Email { get; set; } = null!;
+
+        public string PasswordHash { get; set; } = null!;
+
+        public UserRole Role { get; set; } = UserRole.User;
+    }
+
+    public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, Guid>
+    {
+        private readonly INewsDbContext _context;
+
+        public CreateUserCommandHandler(INewsDbContext context)
         {
-            public string? UserName { get; set; }
-            public string? UserSurname { get; set; }
-            public string? UserRole { get; set; }
-            public string? UserEmail { get; set; } = null!;
-            public string? Password { get; set; } = null!;
-            public int? Level { get; set; }
+            _context = context;
         }
 
-        public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, Guid>
+        public async Task<Guid> Handle(CreateUserCommand request, CancellationToken cancellationToken)
         {
-            private readonly INewsDbContext _context;
-            public CreateUserCommandHandler(INewsDbContext context)
+            var entity = new User
             {
-                _context = context;
-            }
-            public async Task<Guid> Handle(CreateUserCommand request, CancellationToken cancellationToken)
-            {
-                var entity = new User
-                {
-                    UserId = Guid.NewGuid(),
-                    UserName = request.UserName,
-                    UserSurname = request.UserSurname,
-                    UserRole = request.UserRole,
-                    UserEmail = request.UserEmail,
-                    Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
-                    Level = request.Level
-                };
+                Id = Guid.NewGuid(),
+                UserName = request.UserName,
+                Role = request.Role,
+                Email = request.Email,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.PasswordHash),
+                CreatedAt = DateTime.UtcNow
+            };
 
-                await _context.Users.AddAsync(entity);
-                await _context.SaveChangesAsync(cancellationToken);
+            await _context.Users.AddAsync(entity);
+            await _context.SaveChangesAsync(cancellationToken);
 
-                return (Guid)entity.UserId;
-            }
+            return entity.Id;
         }
     }
 }

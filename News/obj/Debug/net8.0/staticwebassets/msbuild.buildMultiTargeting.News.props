@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="..\build\News.props" />
-</Project>

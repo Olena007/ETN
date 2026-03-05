@@ -1,22 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
+﻿
+using News.Enums;
 
 namespace News.Entities
 {
-    public class User
+    public class User : BaseEntity
     {
-        public Guid? UserId { get; set; }
-        public string? UserName { get; set; }
-        public string? UserSurname { get; set; }
-        public string? UserRole { get; set; }
-        public string? UserEmail { get; set; } = null!;
-        [JsonIgnore]
-        public string? Password { get; set; } = null!;
-        public int? Level { get; set; }
-        public ICollection<Booking> Bookings { get; set; }
+
+        public string UserName { get; set; } = null!;
+
+        public string Email { get; set; } = null!;
+
+        public string PasswordHash { get; set; } = null!;
+
+        public UserRole Role { get; set; } = UserRole.User;
     }
 }

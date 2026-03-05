@@ -1,30 +1,34 @@
 using System.Globalization;
+using AutoMapper;
 using CsvHelper;
 using Microsoft.AspNetCore.Mvc;
-
+using News.BusinessLogic.Articles;
 
 namespace WebApi.Controllers;
 
-public class ArticleController: BaseController
+public class ArticleController : BaseController
 {
-    public class ArticleModel
+    [HttpGet]
+    public async Task<ActionResult<GetArticles.ArticlesListDto>> GetAll([FromQuery] GetArticles.GetArticlesQuery query)
     {
-        public string Article {  get; set; }
-        public string Heading { get; set; }
-        public DateTime Date { get; set; }
-        public string NewsType { get; set; }
+        var result = await Mediator.Send(query);
+        return Ok(result);
     }
     
-    [HttpGet]
-
-    public List<ArticleModel> Get()
+    [HttpGet("{id}")]
+    public async Task<ActionResult<GetArticle.ArticleDto>> Get(Guid id)
     {
-        var path = Path.Combine($"{Directory.GetCurrentDirectory()}.Infrastructure", "Articles.csv");
-
-        using var reader = new StreamReader(path);
-        using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
-
-        var records = csv.GetRecords<ArticleModel>().ToList();
-        return records;
-    } 
+        var query = new GetArticle.GetArticleQuery
+        {
+            Id = id
+        };
+        var vm = await Mediator.Send(query);
+        return Ok(vm);
+    }
+    
+    [HttpPost]
+    public async Task<ActionResult<ImportArticlesFromFolder.ImportResult>> Import([FromBody] ImportArticlesFromFolder.ImportArticlesCommand command) {
+        var result = await Mediator.Send(command);
+        return Ok(result);
+    }
 }

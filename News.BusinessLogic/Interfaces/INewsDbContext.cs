@@ -1,19 +1,17 @@
-﻿using News.Entities;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata;
-using System.Text;
+﻿using System.Threading;
 using System.Threading.Tasks;
+using News.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace News.BusinessLogic.Interfaces
 {
     public interface INewsDbContext
     {
-        DbSet<Car> Cars { get; }
         DbSet<User> Users { get; }
-        DbSet<Booking> Bookings { get; }
+        DbSet<Article> Articles { get; }
+        DbSet<ArticleUnit> ArticleUnits { get; }
+        DbSet<Category> Categories { get; }
+        DbSet<ThreadInfo> ThreadInfos { get; }
         Task<int> SaveChangesAsync(CancellationToken token);
     }
 }
