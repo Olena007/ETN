@@ -13,4 +13,5 @@ public class Article: BaseEntity
     public ThreadInfo Thread { get; set; } = null!;
     public ICollection<Category> Categories { get; set; } = new List<Category>();
     public ICollection<ArticleUnit> Entities { get; set; } = new List<ArticleUnit>();
+    public ICollection<ArticleEmbedding> ArticleEmbeddings { get; set; } = new List<ArticleEmbedding>();
 }

@@ -13,8 +13,5 @@ public class NewsDbContext(DbContextOptions<NewsDbContext> opts) : DbContext(opt
     public DbSet<ArticleUnit> ArticleUnits => Set<ArticleUnit>();
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<ThreadInfo> ThreadInfos => Set<ThreadInfo>();
-    public Task<int> SaveChangesAsync(CancellationToken token)
-    {
-        throw new System.NotImplementedException();
-    }
+    public DbSet<ArticleEmbedding> ArticleEmbeddings => Set<ArticleEmbedding>();
 }

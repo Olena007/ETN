@@ -6,6 +6,7 @@ using News.BusinessLogic.Articles;
 
 namespace WebApi.Controllers;
 
+[Route("api/[controller]/[action]")]
 public class ArticleController : BaseController
 {
     [HttpGet]

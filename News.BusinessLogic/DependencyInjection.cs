@@ -1,11 +1,7 @@
-﻿using MediatR;
-using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+using News.BusinessLogic.Embedding;
+using News.BusinessLogic.Interfaces;
 
 namespace News.BusinessLogic
 {
@@ -16,6 +12,19 @@ namespace News.BusinessLogic
             services.AddMediatR(cfg => {
                 cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
             });
+            return services;
+        }
+        
+        public static IServiceCollection AddBusinessLogic(this IServiceCollection services, string embeddingServiceUrl)
+        {
+            services.AddHttpClient<IEmbeddingService, SentenceTransformerEmbeddingService>(client =>
+            {
+                client.BaseAddress = new Uri(embeddingServiceUrl);
+                client.Timeout = TimeSpan.FromSeconds(30);
+            });
+
+            services.AddScoped<IRecommendationService, RecommendationService>();
+
             return services;
         }
     }

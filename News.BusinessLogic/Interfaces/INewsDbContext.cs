@@ -12,6 +12,7 @@ namespace News.BusinessLogic.Interfaces
         DbSet<ArticleUnit> ArticleUnits { get; }
         DbSet<Category> Categories { get; }
         DbSet<ThreadInfo> ThreadInfos { get; }
+        DbSet<ArticleEmbedding> ArticleEmbeddings { get; }
         Task<int> SaveChangesAsync(CancellationToken token);
     }
 }
