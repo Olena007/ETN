@@ -5,8 +5,7 @@ namespace WebApi.Controllers;
 
 public class RecommendationsController(IRecommendationService recommendations) : BaseController
 {
-    /// <summary>
-    /// GET /api/articles/42/recommendations?topN=5
+    /// <summary> 
     /// Returns similar articles upon cosyne similarity of embeddings
     /// </summary>
     [HttpGet]
@@ -17,7 +16,6 @@ public class RecommendationsController(IRecommendationService recommendations) :
     }
 
     /// <summary>
-    /// POST /api/articles/42/recommendations/index
     /// Generates and saves embedding for the article
     /// </summary>
     [HttpPost("index")]
@@ -25,5 +23,15 @@ public class RecommendationsController(IRecommendationService recommendations) :
     {
         await recommendations.IndexArticleAsync(articleId);
         return Ok(new { message = $"Article {articleId} indexed successfully" });
+    }
+    
+    /// <summary>
+    /// Generates and saves embedding for the articles
+    /// </summary>
+    [HttpPost]
+    public async Task<IActionResult> IndexAll(CancellationToken ct)
+    {
+        var result = await recommendations.IndexArticlesAsync(ct);
+        return Ok(result);
     }
 }

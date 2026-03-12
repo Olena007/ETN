@@ -10,7 +10,7 @@ public class SentenceTransformerEmbeddingService(HttpClient http) : IEmbeddingSe
         var response = await http.PostAsJsonAsync("/embed", new { text }, ct);
         response.EnsureSuccessStatusCode();
 
-        var result = await response.Content.ReadFromJsonAsync<EmbedResponse>(cancellationToken: ct);
+        var result = await response.Content.ReadFromJsonAsync<EmbedResponse>(ct);
         return result!.Embedding;
     }
 
@@ -19,10 +19,11 @@ public class SentenceTransformerEmbeddingService(HttpClient http) : IEmbeddingSe
         var response = await http.PostAsJsonAsync("/embed/batch", new { texts }, ct);
         response.EnsureSuccessStatusCode();
 
-        var result = await response.Content.ReadFromJsonAsync<EmbedBatchResponse>(cancellationToken: ct);
+        var result = await response.Content.ReadFromJsonAsync<EmbedBatchResponse>(ct);
         return result!.Embeddings;
     }
 
     private record EmbedResponse(float[] Embedding);
+
     private record EmbedBatchResponse(float[][] Embeddings);
 }

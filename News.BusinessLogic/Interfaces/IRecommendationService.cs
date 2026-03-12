@@ -1,3 +1,4 @@
+using News.BusinessLogic.Embedding;
 using News.Entities;
 
 namespace News.BusinessLogic.Interfaces;
@@ -10,7 +11,12 @@ public interface IRecommendationService
     Task<IEnumerable<Article>> GetSimilarAsync(Guid articleId, int topN = 5, CancellationToken ct = default);
 
     /// <summary>
-    ///  Generates and saves embedding for the article (calla upon publish)
+    ///  Generates and saves embedding for the article (calls upon publish)
     /// </summary>
     Task IndexArticleAsync(Guid articleId, CancellationToken ct = default);
+
+    /// <summary>
+    ///  Generates and saves embedding for the articles
+    /// </summary>
+    Task<RecommendationService.IndexArticlesDto> IndexArticlesAsync(CancellationToken ct);
 }
