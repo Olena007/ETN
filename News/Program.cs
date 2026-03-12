@@ -1,9 +1,9 @@
 using News.BusinessLogic;
-using News.BusinessLogic.Common.Mappings;
 using News.BusinessLogic.Interfaces;
 using News.BusinessLogic.Token;
 using News.Infrastructure;
 using System.Reflection;
+using News.Enums;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +19,14 @@ builder.Services.AddAutoMapper(
 );
 builder.Services.AddApplication();
 builder.Services.AddPersistence(builder.Configuration);
+var provider = builder.Configuration["Embedding:Provider"] == "Gemini"
+    ? EmbeddingProvider.Gemini
+    : EmbeddingProvider.SentenceTransformers;
+builder.Services.AddBusinessLogic(
+    provider,
+    sentenceTransformersUrl: builder.Configuration["Embedding:SentenceTransformersUrl"] ?? "",
+    geminiApiKey: builder.Configuration["Embedding:GeminiApiKey"] ?? ""
+);
 builder.Services.AddScoped<Token>();
 builder.Services.AddCors(opts =>
 {
@@ -50,10 +58,12 @@ using (var scope = app.Services.CreateScope())
     var serviceProvider = scope.ServiceProvider;
     try
     {
-        var context = serviceProvider.GetRequiredService<NewsDbContext>();
+        serviceProvider.GetRequiredService<NewsDbContext>();
     }
     catch
-    { }
+    {
+        // ignored
+    }
 }
 
 app.Run();

@@ -2,6 +2,7 @@
 using System.Reflection;
 using News.BusinessLogic.Embedding;
 using News.BusinessLogic.Interfaces;
+using News.Enums;
 
 namespace News.BusinessLogic
 {
@@ -15,16 +16,31 @@ namespace News.BusinessLogic
             return services;
         }
         
-        public static IServiceCollection AddBusinessLogic(this IServiceCollection services, string embeddingServiceUrl)
-        {
-            services.AddHttpClient<IEmbeddingService, SentenceTransformerEmbeddingService>(client =>
+        public static IServiceCollection AddBusinessLogic(this IServiceCollection services, EmbeddingProvider provider, string sentenceTransformersUrl = "", string geminiApiKey = "") {
+            switch (provider)
             {
-                client.BaseAddress = new Uri(embeddingServiceUrl);
-                client.Timeout = TimeSpan.FromSeconds(30);
-            });
+                case EmbeddingProvider.SentenceTransformers:
+                    services.AddHttpClient<IEmbeddingService, SentenceTransformerEmbeddingService>(client =>
+                    {
+                        client.BaseAddress = new Uri(sentenceTransformersUrl);
+                        client.Timeout = TimeSpan.FromSeconds(30);
+                    });
+                    break;
 
+                case EmbeddingProvider.Gemini:
+                    services.AddTransient<IEmbeddingService>(sp =>
+                    {
+                        var httpFactory = sp.GetRequiredService<IHttpClientFactory>();
+                        var http = httpFactory.CreateClient();
+                        return new GeminiEmbeddingService(http, geminiApiKey);
+                    });
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(provider), provider, null);
+            }
+
+            services.AddSingleton(typeof(EmbeddingProvider), provider); 
             services.AddScoped<IRecommendationService, RecommendationService>();
-
             return services;
         }
     }

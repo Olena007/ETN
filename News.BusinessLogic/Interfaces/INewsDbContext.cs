@@ -13,6 +13,7 @@ namespace News.BusinessLogic.Interfaces
         DbSet<Category> Categories { get; }
         DbSet<ThreadInfo> ThreadInfos { get; }
         DbSet<ArticleEmbedding> ArticleEmbeddings { get; }
+        DbSet<ArticleEmbeddingGemini> ArticleEmbeddingsGemini { get; }
         Task<int> SaveChangesAsync(CancellationToken token);
     }
 }
