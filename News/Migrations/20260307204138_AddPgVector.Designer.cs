@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using News.Infrastructure;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -12,9 +13,11 @@ using Pgvector;
 namespace WebApi.Migrations
 {
     [DbContext(typeof(NewsDbContext))]
-    partial class NewsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260307204138_AddPgVector")]
+    partial class AddPgVector
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -98,11 +101,6 @@ namespace WebApi.Migrations
                     b.Property<int>("Dimensions")
                         .HasColumnType("integer");
 
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
-                        .HasMaxLength(34)
-                        .HasColumnType("character varying(34)");
-
                     b.Property<string>("ModelName")
                         .IsRequired()
                         .HasColumnType("text");
@@ -119,10 +117,6 @@ namespace WebApi.Migrations
                     b.HasIndex("ArticleId");
 
                     b.ToTable("ArticleEmbeddings");
-
-                    b.HasDiscriminator().HasValue("ArticleEmbedding");
-
-                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("News.Entities.ArticleUnit", b =>
@@ -245,13 +239,6 @@ namespace WebApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("News.Entities.ArticleEmbeddingGemini", b =>
-                {
-                    b.HasBaseType("News.Entities.ArticleEmbedding");
-
-                    b.HasDiscriminator().HasValue("ArticleEmbeddingGemini");
                 });
 
             modelBuilder.Entity("ArticleCategory", b =>

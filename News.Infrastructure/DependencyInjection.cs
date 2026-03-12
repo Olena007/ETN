@@ -12,7 +12,11 @@ public static class DependencyInjection
         services.AddDbContext<INewsDbContext, NewsDbContext>(opts =>
         {
             opts.UseNpgsql(configuration.GetConnectionString("DefaultConnection"),
-                b => { b.MigrationsAssembly("News"); });
+                b =>
+                {
+                    b.MigrationsAssembly("News");
+                    b.UseVector();
+                });
         });
         return services;
     }

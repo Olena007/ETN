@@ -14,4 +14,20 @@ public class NewsDbContext(DbContextOptions<NewsDbContext> opts) : DbContext(opt
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<ThreadInfo> ThreadInfos => Set<ThreadInfo>();
     public DbSet<ArticleEmbedding> ArticleEmbeddings => Set<ArticleEmbedding>();
+    public DbSet<ArticleEmbeddingGemini> ArticleEmbeddingsGemini => Set<ArticleEmbeddingGemini>();
+    
+    protected override void OnModelCreating(ModelBuilder modelBuilder) {
+        modelBuilder.HasPostgresExtension("vector");
+    
+        modelBuilder.Entity<ArticleEmbedding>(e => {
+            e.Property(x => x.Vector)
+                .HasColumnType("vector(384)"); 
+        });
+        
+        modelBuilder.Entity<ArticleEmbeddingGemini>(e => {
+            e.ToTable("ArticleEmbeddingsGemini"); 
+            e.Property(x => x.Vector)
+                .HasColumnType("vector(768)");
+        });
+    }
 }
