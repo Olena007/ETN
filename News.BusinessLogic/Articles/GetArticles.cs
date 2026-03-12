@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using News.BusinessLogic.Interfaces;
@@ -42,6 +37,7 @@ public class GetArticles
         public string? Sentiment { get; set; }
         public string Site { get; set; } = null!;
         public List<string> Categories { get; set; } = new();
+        public GetArticle.ThreadInfoDto? Thread { get; set; }
     }
 
     public class GetArticlesQueryHandler : IRequestHandler<GetArticlesQuery, ArticlesListDto>
@@ -94,7 +90,18 @@ public class GetArticles
                     Language = a.Language,
                     Sentiment = a.Sentiment,
                     Site = a.Thread != null ? a.Thread.Site : string.Empty,
-                    Categories = a.Categories.Select(c => c.Name).ToList()
+                    Categories = a.Categories.Select(c => c.Name).ToList(),
+                    Thread = a.Thread != null
+                        ? new GetArticle.ThreadInfoDto
+                        {
+                            Id = a.Thread.Id,
+                            Site = a.Thread.Site,
+                            Country = a.Thread.Country,
+                            MainImage = a.Thread.MainImage,
+                            DomainRank = a.Thread.DomainRank,
+                            CreatedAt = a.Thread.CreatedAt
+                        }
+                        : null
                 })
                 .ToListAsync(cancellationToken);
 

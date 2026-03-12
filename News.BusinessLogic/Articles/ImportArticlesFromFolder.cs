@@ -1,10 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using News.BusinessLogic.Interfaces;
@@ -99,17 +93,20 @@ public class ImportArticlesFromFolder
             {
                 var articlesToAdd = new List<Article>();
                 var categoriesToAdd = new Dictionary<string, Category>();
+                var uuidsInCurrentBatch = new HashSet<string>();
 
                 foreach (var filePath in jsonFiles)
                     try
                     {
-                        var article = await ParseArticleFromFile(
-                            filePath, existingUuids, categoriesCache, categoriesToAdd, cancellationToken);
+                        var article = await ParseArticleFromFile(filePath, existingUuids, uuidsInCurrentBatch,
+                            categoriesCache, categoriesToAdd, cancellationToken);
 
                         if (article != null)
                         {
                             articlesToAdd.Add(article);
                             result.Imported++;
+
+                            uuidsInCurrentBatch.Add(article.Uuid);
                             existingUuids.Add(article.Uuid);
 
                             if (articlesToAdd.Count >= BATCH_SIZE)
@@ -117,6 +114,7 @@ public class ImportArticlesFromFolder
                                 await SaveBatch(articlesToAdd, categoriesToAdd.Values.ToList(), cancellationToken);
                                 articlesToAdd.Clear();
                                 categoriesToAdd.Clear();
+                                uuidsInCurrentBatch.Clear();
                             }
                         }
                         else
@@ -143,6 +141,7 @@ public class ImportArticlesFromFolder
         private async Task<Article?> ParseArticleFromFile(
             string filePath,
             HashSet<string> existingUuids,
+            HashSet<string> uuidsInCurrentBatch,
             Dictionary<string, Category> existingCategories,
             Dictionary<string, Category> newCategoriesInBatch,
             CancellationToken cancellationToken)
@@ -154,7 +153,7 @@ public class ImportArticlesFromFolder
             if (articleData == null)
                 throw new Exception("Failed to deserialize article data");
 
-            if (existingUuids.Contains(articleData.Uuid))
+            if (existingUuids.Contains(articleData.Uuid) || uuidsInCurrentBatch.Contains(articleData.Uuid))
                 return null;
 
             var article = new Article
@@ -248,21 +247,35 @@ public class ImportArticlesFromFolder
         private async Task SaveBatch(List<Article> articles, List<Category> newCategories,
             CancellationToken cancellationToken)
         {
-            if (newCategories.Any())
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
+
+            try
             {
-                var distinctCategories = newCategories
-                    .GroupBy(c => c.Name)
-                    .Select(g => g.First())
-                    .ToList();
+                if (newCategories.Any())
+                {
+                    var distinctCategories = newCategories
+                        .GroupBy(c => c.Name)
+                        .Select(g => g.First())
+                        .ToList();
 
-                await _context.Categories.AddRangeAsync(distinctCategories, cancellationToken);
+                    await _context.Categories.AddRangeAsync(distinctCategories, cancellationToken);
+                    await _context.SaveChangesAsync(cancellationToken);
+                }
+
+                await _context.Articles.AddRangeAsync(articles, cancellationToken);
                 await _context.SaveChangesAsync(cancellationToken);
+
+                await transaction.CommitAsync(cancellationToken);
             }
-
-            await _context.Articles.AddRangeAsync(articles, cancellationToken);
-            await _context.SaveChangesAsync(cancellationToken);
-
-            _dbContext.ChangeTracker.Clear();
+            catch
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                throw;
+            }
+            finally
+            {
+                _dbContext.ChangeTracker.Clear();
+            }
         }
     }
 }

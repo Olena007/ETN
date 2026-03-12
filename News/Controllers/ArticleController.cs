@@ -1,6 +1,3 @@
-using System.Globalization;
-using AutoMapper;
-using CsvHelper;
 using Microsoft.AspNetCore.Mvc;
 using News.BusinessLogic.Articles;
 
@@ -31,5 +28,18 @@ public class ArticleController : BaseController
     public async Task<ActionResult<ImportArticlesFromFolder.ImportResult>> Import([FromBody] ImportArticlesFromFolder.ImportArticlesCommand command) {
         var result = await Mediator.Send(command);
         return Ok(result);
+    }
+    
+    [HttpGet("languages")]
+    public async Task<ActionResult<List<string>>> GetLanguages() {
+        var result = await Mediator.Send(new GetLanguages.GetLanguagesQuery());
+        return Ok(result);
+    }
+    
+    [HttpDelete("language/{language}")]
+    public async Task<ActionResult<int>> DeleteByLanguage(string language)
+    {
+        var result = await Mediator.Send(new DeleteArticlesByLanguage.DeleteArticlesByLanguageCommand { Language = language });
+        return Ok(new { deletedCount = result, language = language });
     }
 }
