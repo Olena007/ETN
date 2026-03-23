@@ -2,7 +2,7 @@ using System.Net.Http.Json;
 using System.Text.Json.Serialization;
 using News.BusinessLogic.Interfaces;
 
-namespace News.BusinessLogic.Embedding;
+namespace News.BusinessLogic.Embeddings;
 
 public class GeminiEmbedding(HttpClient http, string apiKey) : IEmbeddingService
 {

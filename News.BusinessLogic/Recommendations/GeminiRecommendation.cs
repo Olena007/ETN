@@ -7,7 +7,7 @@ using Pgvector.EntityFrameworkCore;
 
 namespace News.BusinessLogic.Recommendations;
 
-public class GeminiRecommendationService(
+public class GeminiRecommendation(
     IEmbeddingService embeddings,
     INewsDbContext db) : IRecommendationService
 {

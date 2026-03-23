@@ -15,6 +15,7 @@ public class NewsDbContext(DbContextOptions<NewsDbContext> opts) : DbContext(opt
     public DbSet<ThreadInfo> ThreadInfos => Set<ThreadInfo>();
     public DbSet<ArticleEmbedding> ArticleEmbeddings => Set<ArticleEmbedding>();
     public DbSet<ArticleEmbeddingGemini> ArticleEmbeddingsGemini => Set<ArticleEmbeddingGemini>();
+    public DbSet<ArticleEmbeddingOpenAi> ArticleEmbeddingsOpenAi => Set<ArticleEmbeddingOpenAi>();
     
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
         modelBuilder.HasPostgresExtension("vector");
@@ -29,6 +30,11 @@ public class NewsDbContext(DbContextOptions<NewsDbContext> opts) : DbContext(opt
             e.ToTable("ArticleEmbeddingsGemini"); 
             e.Property(x => x.Vector)
                 .HasColumnType("vector(3072)");
+        });
+        
+        modelBuilder.Entity<ArticleEmbeddingOpenAi>(e => {
+            e.ToTable("ArticleEmbeddingsOpenAi");
+            e.Property(x => x.Vector).HasColumnType("vector(1536)");
         });
     }
 }

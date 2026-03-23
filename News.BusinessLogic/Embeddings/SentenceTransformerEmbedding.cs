@@ -1,7 +1,7 @@
 using System.Net.Http.Json;
 using News.BusinessLogic.Interfaces;
 
-namespace News.BusinessLogic.Embedding;
+namespace News.BusinessLogic.Embeddings;
 
 public class SentenceTransformerEmbedding(HttpClient http) : IEmbeddingService
 {

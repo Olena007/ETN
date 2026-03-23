@@ -7,7 +7,7 @@ using Pgvector.EntityFrameworkCore;
 
 namespace News.BusinessLogic.Recommendations;
 
-public class SentenceTransformerRecommendationService(
+public class OpenAiRecommendationService(
     IEmbeddingService embeddings,
     INewsDbContext db) : IRecommendationService
 {
@@ -19,7 +19,7 @@ public class SentenceTransformerRecommendationService(
         var floats = await embeddings.GenerateAsync($"{article.Title}. {article.Text}", ct);
         var vector = new Vector(floats);
 
-        var existing = await db.ArticleEmbeddings
+        var existing = await db.ArticleEmbeddingsOpenAi
             .FirstOrDefaultAsync(e => e.ArticleId == articleId, ct);
 
         if (existing is not null)
@@ -29,10 +29,10 @@ public class SentenceTransformerRecommendationService(
         }
         else
         {
-            db.ArticleEmbeddings.Add(new ArticleEmbedding
+            db.ArticleEmbeddingsOpenAi.Add(new ArticleEmbeddingOpenAi
             {
                 ArticleId = articleId,
-                ModelName = "all-MiniLM-L6-v2",
+                ModelName = "text-embedding-3-small",
                 Dimensions = floats.Length,
                 Vector = vector
             });
@@ -44,7 +44,7 @@ public class SentenceTransformerRecommendationService(
     public async Task<IndexArticlesModel> IndexArticlesAsync(CancellationToken ct)
     {
         var articleIds = await db.Articles
-            .Where(a => !db.ArticleEmbeddings.Any(e => e.ArticleId == a.Id))
+            .Where(a => !db.ArticleEmbeddingsOpenAi.Any(e => e.ArticleId == a.Id))
             .Select(a => a.Id)
             .ToListAsync(ct);
 
@@ -57,7 +57,7 @@ public class SentenceTransformerRecommendationService(
                 await IndexArticleAsync(id, ct);
                 processed++;
                 if (processed % 100 == 0)
-                    Console.WriteLine($"[SentenceTransformers] Progress: {processed}/{articleIds.Count}");
+                    Console.WriteLine($"[OpenAI] Progress: {processed}/{articleIds.Count}");
             }
             catch (Exception ex)
             {
@@ -77,11 +77,11 @@ public class SentenceTransformerRecommendationService(
     public async Task<IEnumerable<Article>> GetSimilarAsync(Guid articleId, int topN = 5,
         CancellationToken ct = default)
     {
-        var source = await db.ArticleEmbeddings
+        var source = await db.ArticleEmbeddingsOpenAi
                          .FirstOrDefaultAsync(e => e.ArticleId == articleId, ct)
                      ?? throw new KeyNotFoundException($"Embedding for article {articleId} not found.");
 
-        return await db.ArticleEmbeddings
+        return await db.ArticleEmbeddingsOpenAi
             .Where(e => e.ArticleId != articleId)
             .OrderBy(e => e.Vector.CosineDistance(source.Vector))
             .Take(topN)

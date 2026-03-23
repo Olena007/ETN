@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
-using News.BusinessLogic.Embedding;
+using News.BusinessLogic.Embeddings;
 using News.BusinessLogic.Interfaces;
 using News.BusinessLogic.Recommendations;
 using News.Enums;
@@ -30,13 +30,13 @@ public static class DependencyInjection
                     c.BaseAddress = new Uri(sentenceTransformersUrl);
                     c.Timeout = TimeSpan.FromSeconds(30);
                 });
-                services.AddScoped<IRecommendationService, SentenceTransformerRecommendationService>();
+                services.AddScoped<IRecommendationService, SentenceTransformerRecommendation>();
                 break;
 
             case EmbeddingProvider.Gemini:
                 services.AddTransient<IEmbeddingService>(_ =>
                     new GeminiEmbedding(new HttpClient(), geminiApiKey));
-                services.AddScoped<IRecommendationService, GeminiRecommendationService>();
+                services.AddScoped<IRecommendationService, GeminiRecommendation>();
                 break;
 
             default:

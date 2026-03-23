@@ -7,14 +7,10 @@ using Pgvector.EntityFrameworkCore;
 
 namespace News.BusinessLogic.Recommendations;
 
-public abstract class RecommendationServiceBase<TEmbedding>(
+public class SentenceTransformerRecommendation(
     IEmbeddingService embeddings,
     INewsDbContext db) : IRecommendationService
-    where TEmbedding : class, IArticleEmbedding
 {
-    protected abstract string ModelName { get; }
-    protected abstract DbSet<TEmbedding> Table { get; }
-
     public async Task IndexArticleAsync(Guid articleId, CancellationToken ct = default)
     {
         var article = await db.Articles.FindAsync([articleId], ct)
@@ -23,7 +19,9 @@ public abstract class RecommendationServiceBase<TEmbedding>(
         var floats = await embeddings.GenerateAsync($"{article.Title}. {article.Text}", ct);
         var vector = new Vector(floats);
 
-        var existing = await Table.FirstOrDefaultAsync(e => e.ArticleId == articleId, ct);
+        var existing = await db.ArticleEmbeddings
+            .FirstOrDefaultAsync(e => e.ArticleId == articleId, ct);
+
         if (existing is not null)
         {
             existing.Vector = vector;
@@ -31,7 +29,13 @@ public abstract class RecommendationServiceBase<TEmbedding>(
         }
         else
         {
-            Table.Add(CreateEmbedding(articleId, vector, floats.Length));
+            db.ArticleEmbeddings.Add(new ArticleEmbedding
+            {
+                ArticleId = articleId,
+                ModelName = "all-MiniLM-L6-v2",
+                Dimensions = floats.Length,
+                Vector = vector
+            });
         }
 
         await db.SaveChangesAsync(ct);
@@ -40,7 +44,7 @@ public abstract class RecommendationServiceBase<TEmbedding>(
     public async Task<IndexArticlesModel> IndexArticlesAsync(CancellationToken ct)
     {
         var articleIds = await db.Articles
-            .Where(a => !Table.Any(e => e.ArticleId == a.Id))
+            .Where(a => !db.ArticleEmbeddings.Any(e => e.ArticleId == a.Id))
             .Select(a => a.Id)
             .ToListAsync(ct);
 
@@ -53,7 +57,7 @@ public abstract class RecommendationServiceBase<TEmbedding>(
                 await IndexArticleAsync(id, ct);
                 processed++;
                 if (processed % 100 == 0)
-                    Console.WriteLine($"[{ModelName}] Progress: {processed}/{articleIds.Count}");
+                    Console.WriteLine($"[SentenceTransformers] Progress: {processed}/{articleIds.Count}");
             }
             catch (Exception ex)
             {
@@ -73,19 +77,16 @@ public abstract class RecommendationServiceBase<TEmbedding>(
     public async Task<IEnumerable<Article>> GetSimilarAsync(Guid articleId, int topN = 5,
         CancellationToken ct = default)
     {
-        var source = await Table.FirstOrDefaultAsync(e => e.ArticleId == articleId, ct)
+        var source = await db.ArticleEmbeddings
+                         .FirstOrDefaultAsync(e => e.ArticleId == articleId, ct)
                      ?? throw new KeyNotFoundException($"Embedding for article {articleId} not found.");
 
-        var vector = source.Vector;
-
-        return await Table
+        return await db.ArticleEmbeddings
             .Where(e => e.ArticleId != articleId)
-            .OrderBy(e => e.Vector.CosineDistance(vector))
+            .OrderBy(e => e.Vector.CosineDistance(source.Vector))
             .Take(topN)
             .Include(e => e.Article)
             .Select(e => e.Article)
             .ToListAsync(ct);
     }
-
-    protected abstract TEmbedding CreateEmbedding(Guid articleId, Vector vector, int dimensions);
 }

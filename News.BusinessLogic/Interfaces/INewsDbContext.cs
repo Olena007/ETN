@@ -14,6 +14,7 @@ namespace News.BusinessLogic.Interfaces
         DbSet<ThreadInfo> ThreadInfos { get; }
         DbSet<ArticleEmbedding> ArticleEmbeddings { get; }
         DbSet<ArticleEmbeddingGemini> ArticleEmbeddingsGemini { get; }
+        DbSet<ArticleEmbeddingOpenAi> ArticleEmbeddingsOpenAi { get; }
         Task<int> SaveChangesAsync(CancellationToken token);
     }
 }
