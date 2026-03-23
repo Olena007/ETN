@@ -4,7 +4,7 @@ using News.BusinessLogic.Interfaces;
 
 namespace News.BusinessLogic.Embedding;
 
-public class GeminiEmbeddingService(HttpClient http, string apiKey) : IEmbeddingService
+public class GeminiEmbedding(HttpClient http, string apiKey) : IEmbeddingService
 {
     private const string Model = "gemini-embedding-001";
 

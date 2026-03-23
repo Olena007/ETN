@@ -42,7 +42,7 @@ public class GetUser
 
     public class GetUserQueryByEmail : IRequest<UserVm>
     {
-        public string UserEmail { get; set; }
+        public string UserEmail { get; set; } = null!;
     }
 
     public class GetUserQueryHandler : IRequestHandler<GetUserQuery, UserVm>

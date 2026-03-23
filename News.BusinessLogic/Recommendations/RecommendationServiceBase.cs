@@ -5,7 +5,7 @@ using News.Models;
 using Pgvector;
 using Pgvector.EntityFrameworkCore;
 
-namespace News.BusinessLogic.Embedding;
+namespace News.BusinessLogic.Recommendations;
 
 public abstract class RecommendationServiceBase<TEmbedding>(
     IEmbeddingService embeddings,

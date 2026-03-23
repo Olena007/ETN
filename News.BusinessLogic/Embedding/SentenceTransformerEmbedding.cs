@@ -3,7 +3,7 @@ using News.BusinessLogic.Interfaces;
 
 namespace News.BusinessLogic.Embedding;
 
-public class SentenceTransformerEmbeddingService(HttpClient http) : IEmbeddingService
+public class SentenceTransformerEmbedding(HttpClient http) : IEmbeddingService
 {
     public async Task<float[]> GenerateAsync(string text, CancellationToken ct = default)
     {

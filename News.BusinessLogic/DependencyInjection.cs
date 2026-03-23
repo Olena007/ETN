@@ -2,6 +2,7 @@
 using System.Reflection;
 using News.BusinessLogic.Embedding;
 using News.BusinessLogic.Interfaces;
+using News.BusinessLogic.Recommendations;
 using News.Enums;
 
 namespace News.BusinessLogic;
@@ -24,7 +25,7 @@ public static class DependencyInjection
         switch (provider)
         {
             case EmbeddingProvider.SentenceTransformers:
-                services.AddHttpClient<IEmbeddingService, SentenceTransformerEmbeddingService>(c =>
+                services.AddHttpClient<IEmbeddingService, SentenceTransformerEmbedding>(c =>
                 {
                     c.BaseAddress = new Uri(sentenceTransformersUrl);
                     c.Timeout = TimeSpan.FromSeconds(30);
@@ -34,7 +35,7 @@ public static class DependencyInjection
 
             case EmbeddingProvider.Gemini:
                 services.AddTransient<IEmbeddingService>(_ =>
-                    new GeminiEmbeddingService(new HttpClient(), geminiApiKey));
+                    new GeminiEmbedding(new HttpClient(), geminiApiKey));
                 services.AddScoped<IRecommendationService, GeminiRecommendationService>();
                 break;
 

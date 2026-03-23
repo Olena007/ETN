@@ -17,7 +17,7 @@ public class GetUsers
 {
     public class UsersVm
     {
-        public IList<UserLookupDto> Users { get; set; }
+        public IList<UserLookupDto> Users { get; set; } = null!;
     }
 
     public class UserLookupDto : IMapWith<User>
