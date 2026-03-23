@@ -6,9 +6,10 @@ namespace News.BusinessLogic.Embedding;
 
 public class GeminiEmbeddingService(HttpClient http, string apiKey) : IEmbeddingService
 {
-    private const string Model = "text-embedding-004"; // 768 dims
+    private const string Model = "gemini-embedding-001";
 
-    public async Task<float[]> GenerateAsync(string text, CancellationToken ct = default) {
+    public async Task<float[]> GenerateAsync(string text, CancellationToken ct = default)
+    {
         var url = $"https://generativelanguage.googleapis.com/v1beta/models/{Model}:embedContent?key={apiKey}";
 
         var body = new
@@ -22,13 +23,19 @@ public class GeminiEmbeddingService(HttpClient http, string apiKey) : IEmbedding
         };
 
         var response = await http.PostAsJsonAsync(url, body, ct);
-        response.EnsureSuccessStatusCode();
+        //response.EnsureSuccessStatusCode();
+        if (!response.IsSuccessStatusCode)
+        {
+            var error = await response.Content.ReadAsStringAsync(ct);
+            throw new Exception($"Gemini API error {response.StatusCode}: {error}");
+        }
 
         var result = await response.Content.ReadFromJsonAsync<GeminiEmbedResponse>(ct);
         return result!.Embedding.Values;
     }
 
-    public async Task<float[][]> GenerateBatchAsync(IEnumerable<string> texts, CancellationToken ct = default) {
+    public async Task<float[][]> GenerateBatchAsync(IEnumerable<string> texts, CancellationToken ct = default)
+    {
         var results = new List<float[]>();
         foreach (var text in texts) results.Add(await GenerateAsync(text, ct));
         return results.ToArray();

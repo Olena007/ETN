@@ -13,8 +13,8 @@ using Pgvector;
 namespace WebApi.Migrations
 {
     [DbContext(typeof(NewsDbContext))]
-    [Migration("20260312134028_AddArticleEmbeddingGemini")]
-    partial class AddArticleEmbeddingGemini
+    [Migration("20260313191500_AddGeminiEmbeddingsTable")]
+    partial class AddGeminiEmbeddingsTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -101,11 +101,6 @@ namespace WebApi.Migrations
                     b.Property<int>("Dimensions")
                         .HasColumnType("integer");
 
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
-                        .HasMaxLength(34)
-                        .HasColumnType("character varying(34)");
-
                     b.Property<string>("ModelName")
                         .IsRequired()
                         .HasColumnType("text");
@@ -121,11 +116,40 @@ namespace WebApi.Migrations
 
                     b.HasIndex("ArticleId");
 
-                    b.ToTable("ArticleEmbeddings");
+                    b.ToTable("ArticleEmbeddings", (string)null);
+                });
 
-                    b.HasDiscriminator().HasValue("ArticleEmbedding");
+            modelBuilder.Entity("News.Entities.ArticleEmbeddingGemini", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
-                    b.UseTphMappingStrategy();
+                    b.Property<Guid>("ArticleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Dimensions")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ModelName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Vector>("Vector")
+                        .IsRequired()
+                        .HasColumnType("vector(768)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ArticleId");
+
+                    b.ToTable("ArticleEmbeddingsGemini", (string)null);
                 });
 
             modelBuilder.Entity("News.Entities.ArticleUnit", b =>
@@ -250,13 +274,6 @@ namespace WebApi.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("News.Entities.ArticleEmbeddingGemini", b =>
-                {
-                    b.HasBaseType("News.Entities.ArticleEmbedding");
-
-                    b.HasDiscriminator().HasValue("ArticleEmbeddingGemini");
-                });
-
             modelBuilder.Entity("ArticleCategory", b =>
                 {
                     b.HasOne("News.Entities.Article", null)
@@ -276,6 +293,17 @@ namespace WebApi.Migrations
                 {
                     b.HasOne("News.Entities.Article", "Article")
                         .WithMany("ArticleEmbeddings")
+                        .HasForeignKey("ArticleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Article");
+                });
+
+            modelBuilder.Entity("News.Entities.ArticleEmbeddingGemini", b =>
+                {
+                    b.HasOne("News.Entities.Article", "Article")
+                        .WithMany()
                         .HasForeignKey("ArticleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

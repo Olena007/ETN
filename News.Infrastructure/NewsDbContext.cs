@@ -20,14 +20,15 @@ public class NewsDbContext(DbContextOptions<NewsDbContext> opts) : DbContext(opt
         modelBuilder.HasPostgresExtension("vector");
     
         modelBuilder.Entity<ArticleEmbedding>(e => {
+            e.ToTable("ArticleEmbeddings");
             e.Property(x => x.Vector)
                 .HasColumnType("vector(384)"); 
         });
-        
+
         modelBuilder.Entity<ArticleEmbeddingGemini>(e => {
             e.ToTable("ArticleEmbeddingsGemini"); 
             e.Property(x => x.Vector)
-                .HasColumnType("vector(768)");
+                .HasColumnType("vector(3072)");
         });
     }
 }
