@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using News.BusinessLogic.Articles;
+using News.Models;
 
 namespace WebApi.Controllers;
 
@@ -25,7 +26,7 @@ public class ArticleController : BaseController
     }
     
     [HttpPost]
-    public async Task<ActionResult<ImportArticlesFromFolder.ImportResult>> Import([FromBody] ImportArticlesFromFolder.ImportArticlesCommand command) {
+    public async Task<ActionResult<ImportResultModel>> Import([FromBody] ImportArticlesFromFolder.ImportArticlesCommand command) {
         var result = await Mediator.Send(command);
         return Ok(result);
     }

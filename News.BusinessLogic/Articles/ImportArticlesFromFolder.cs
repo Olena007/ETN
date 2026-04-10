@@ -3,63 +3,25 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using News.BusinessLogic.Interfaces;
 using News.Entities;
+using News.Models;
 
 namespace News.BusinessLogic.Articles;
 
 public class ImportArticlesFromFolder
 {
-    public class ImportArticlesCommand : IRequest<ImportResult>
+    public class ImportArticlesCommand : IRequest<ImportResultModel>
     {
         public string FolderPath { get; set; } = null!;
     }
 
-    public class ImportResult
+    public class ImportArticlesCommandHandler : IRequestHandler<ImportArticlesCommand, ImportResultModel>
     {
-        public int TotalFiles { get; set; }
-        public int Imported { get; set; }
-        public int Skipped { get; set; }
-        public List<string> Errors { get; set; } = new();
-    }
+        private static readonly JsonSerializerOptions JsonOptions = new()
+        {
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
+        };
 
-    public class EntitiesData
-    {
-        public List<EntityItem> Persons { get; set; } = new();
-        public List<EntityItem> Organizations { get; set; } = new();
-        public List<EntityItem> Locations { get; set; } = new();
-    }
-
-    public class EntityItem
-    {
-        public string Name { get; set; } = null!;
-        public string? Sentiment { get; set; }
-    }
-
-    public class ArticleFileData
-    {
-        public string Uuid { get; set; } = null!;
-        public string Title { get; set; } = null!;
-        public string Text { get; set; } = null!;
-        public string? Author { get; set; }
-        public DateTime Published { get; set; }
-        public string? Language { get; set; }
-        public string? Sentiment { get; set; }
-        public string? Url { get; set; }
-        public ThreadInfoData Thread { get; set; } = null!;
-        public List<string> Categories { get; set; } = new();
-        public EntitiesData Entities { get; set; } = new();
-    }
-
-    public class ThreadInfoData
-    {
-        public string Site { get; set; } = null!;
-        public string? Country { get; set; }
-        public string? MainImage { get; set; }
-        public int? DomainRank { get; set; }
-    }
-
-    public class ImportArticlesCommandHandler : IRequestHandler<ImportArticlesCommand, ImportResult>
-    {
-        private const int BATCH_SIZE = 100;
         private readonly INewsDbContext _context;
         private readonly DbContext _dbContext;
 
@@ -69,70 +31,74 @@ public class ImportArticlesFromFolder
             _dbContext = (DbContext)context;
         }
 
-        public async Task<ImportResult> Handle(ImportArticlesCommand request, CancellationToken cancellationToken)
+        public async Task<ImportResultModel> Handle(ImportArticlesCommand request, CancellationToken cancellationToken)
         {
-            var result = new ImportResult();
+            var result = new ImportResultModel();
 
             if (!Directory.Exists(request.FolderPath))
                 throw new EntryPointNotFoundException($"Folder {request.FolderPath} not found");
 
+            //await ClearAllData(cancellationToken);
+            
             var jsonFiles = Directory.GetFiles(request.FolderPath, "*.json", SearchOption.AllDirectories);
             result.TotalFiles = jsonFiles.Length;
 
-            var existingUuids = new HashSet<string>(
-                await _context.Articles.Select(a => a.Uuid).ToListAsync(cancellationToken)
-            );
+            var existingUuids = (await _context.Articles
+                    .Select(a => a.Uuid)
+                    .ToListAsync(cancellationToken))
+                .ToHashSet();
 
             var categoriesCache = await _context.Categories
-                .ToDictionaryAsync(c => c.Name, c => c, cancellationToken);
+                .ToDictionaryAsync(c => c.Name, c => c.Id, cancellationToken);
+            
+            var uuidsInCurrentBatch = new HashSet<string>();
 
-            _dbContext.ChangeTracker.AutoDetectChangesEnabled = false;
-            _dbContext.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+            var articlesToAdd = new List<Article>();
+            var categoriesToAdd = new Dictionary<string, Guid>();
 
-            try
-            {
-                var articlesToAdd = new List<Article>();
-                var categoriesToAdd = new Dictionary<string, Category>();
-                var uuidsInCurrentBatch = new HashSet<string>();
+            foreach (var filePath in jsonFiles)
+                try
+                {
+                    var article = await ParseArticleFromFile(
+                        filePath,
+                        existingUuids,
+                        uuidsInCurrentBatch,
+                        categoriesCache,
+                        categoriesToAdd,
+                        cancellationToken);
 
-                foreach (var filePath in jsonFiles)
-                    try
+                    if (article != null)
                     {
-                        var article = await ParseArticleFromFile(filePath, existingUuids, uuidsInCurrentBatch,
-                            categoriesCache, categoriesToAdd, cancellationToken);
+                        articlesToAdd.Add(article);
+                        result.Imported++;
+                        uuidsInCurrentBatch.Add(article.Uuid);
+                        existingUuids.Add(article.Uuid);
 
-                        if (article != null)
-                        {
-                            articlesToAdd.Add(article);
-                            result.Imported++;
+                        if (articlesToAdd.Count < Consts.Consts.BATCH_SIZE) continue;
+                        await SaveBatch(articlesToAdd, categoriesToAdd, cancellationToken);
 
-                            uuidsInCurrentBatch.Add(article.Uuid);
-                            existingUuids.Add(article.Uuid);
+                        foreach (var (name, id) in categoriesToAdd)
+                            categoriesCache[name] = id;
 
-                            if (articlesToAdd.Count >= BATCH_SIZE)
-                            {
-                                await SaveBatch(articlesToAdd, categoriesToAdd.Values.ToList(), cancellationToken);
-                                articlesToAdd.Clear();
-                                categoriesToAdd.Clear();
-                                uuidsInCurrentBatch.Clear();
-                            }
-                        }
-                        else
-                        {
-                            result.Skipped++;
-                        }
+                        articlesToAdd.Clear();
+                        categoriesToAdd.Clear();
+                        uuidsInCurrentBatch.Clear();
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        result.Errors.Add($"File {Path.GetFileName(filePath)}: {ex.Message}");
+                        result.Skipped++;
                     }
+                }
+                catch (Exception ex)
+                {
+                    result.Errors.Add($"File {Path.GetFileName(filePath)}: {ex.Message}");
+                }
 
-                if (articlesToAdd.Any())
-                    await SaveBatch(articlesToAdd, categoriesToAdd.Values.ToList(), cancellationToken);
-            }
-            finally
+            if (articlesToAdd.Count == 0) return result;
             {
-                _dbContext.ChangeTracker.AutoDetectChangesEnabled = true;
+                await SaveBatch(articlesToAdd, categoriesToAdd, cancellationToken);
+                foreach (var (name, id) in categoriesToAdd)
+                    categoriesCache[name] = id;
             }
 
             return result;
@@ -142,16 +108,18 @@ public class ImportArticlesFromFolder
             string filePath,
             HashSet<string> existingUuids,
             HashSet<string> uuidsInCurrentBatch,
-            Dictionary<string, Category> existingCategories,
-            Dictionary<string, Category> newCategoriesInBatch,
+            Dictionary<string, Guid> existingCategories,
+            Dictionary<string, Guid> newCategoriesInBatch, 
             CancellationToken cancellationToken)
         {
             var jsonContent = await File.ReadAllTextAsync(filePath, cancellationToken);
-            var articleData = JsonSerializer.Deserialize<ArticleFileData>(jsonContent,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            var articleData = JsonSerializer.Deserialize<ArticleModel>(jsonContent, JsonOptions);
 
             if (articleData == null)
                 throw new Exception("Failed to deserialize article data");
+
+            if (!string.Equals(articleData.Language, "english", StringComparison.OrdinalIgnoreCase))
+                return null;
 
             if (existingUuids.Contains(articleData.Uuid) || uuidsInCurrentBatch.Contains(articleData.Uuid))
                 return null;
@@ -176,95 +144,88 @@ public class ImportArticlesFromFolder
                 article.Thread = new ThreadInfo
                 {
                     Id = Guid.NewGuid(),
-                    Site = articleData.Thread.Site,
+                    ArticleId = article.Id,
+                    Site = articleData.Thread.Site ?? articleData.Thread.SiteFull ?? "unknown",
                     Country = articleData.Thread.Country,
-                    MainImage = articleData.Thread.MainImage,
+                    MainImage = string.IsNullOrEmpty(articleData.Thread.MainImage)
+                        ? null
+                        : articleData.Thread.MainImage,
                     DomainRank = articleData.Thread.DomainRank,
                     CreatedAt = DateTime.UtcNow
                 };
 
             foreach (var categoryName in articleData.Categories)
             {
-                Category? category = null;
+                Guid categoryId;
 
-                if (newCategoriesInBatch.TryGetValue(categoryName, out var newCat))
+                if (existingCategories.TryGetValue(categoryName, out var existingId))
                 {
-                    category = newCat;
+                    categoryId = existingId;
                 }
-                else if (existingCategories.TryGetValue(categoryName, out var existingCat))
+                else if (newCategoriesInBatch.TryGetValue(categoryName, out var batchId))
                 {
-                    category = existingCat;
+                    categoryId = batchId;
                 }
                 else
                 {
-                    category = new Category
-                    {
-                        Id = Guid.NewGuid(),
-                        Name = categoryName,
-                        CreatedAt = DateTime.UtcNow
-                    };
-                    newCategoriesInBatch[categoryName] = category;
-                    existingCategories[categoryName] = category;
+                    categoryId = Guid.NewGuid();
+                    newCategoriesInBatch[categoryName] = categoryId;
+                    existingCategories[categoryName] = categoryId;
                 }
 
-                article.Categories.Add(category);
+                article.Categories.Add(new Category { Id = categoryId });
             }
 
-            if (articleData.Entities != null)
-            {
-                var entities = new List<ArticleUnit>();
+            if (articleData.Entities == null) return article;
+            var entities = articleData.Entities.Persons.Select(person => new ArticleUnit { Name = person.Name, Type = "person", Sentiment = person.Sentiment }).ToList();
+            entities.AddRange(articleData.Entities.Organizations.Select(org => new ArticleUnit { Name = org.Name, Type = "organization", Sentiment = org.Sentiment }));
 
-                foreach (var person in articleData.Entities.Persons)
-                    entities.Add(new ArticleUnit
-                    {
-                        Name = person.Name,
-                        Type = "person",
-                        Sentiment = person.Sentiment
-                    });
+            entities.AddRange(articleData.Entities.Locations.Select(location => new ArticleUnit { Name = location.Name, Type = "location", Sentiment = location.Sentiment }));
 
-                foreach (var org in articleData.Entities.Organizations)
-                    entities.Add(new ArticleUnit
-                    {
-                        Name = org.Name,
-                        Type = "organization",
-                        Sentiment = org.Sentiment
-                    });
-
-                foreach (var location in articleData.Entities.Locations)
-                    entities.Add(new ArticleUnit
-                    {
-                        Name = location.Name,
-                        Type = "location",
-                        Sentiment = location.Sentiment
-                    });
-
-                article.Entities = entities;
-            }
+            article.Entities = entities;
 
             return article;
         }
 
-        private async Task SaveBatch(List<Article> articles, List<Category> newCategories,
+        private async Task SaveBatch(
+            List<Article> articles,
+            Dictionary<string, Guid> newCategories,
             CancellationToken cancellationToken)
         {
             await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
 
             try
             {
-                if (newCategories.Any())
-                {
-                    var distinctCategories = newCategories
-                        .GroupBy(c => c.Name)
-                        .Select(g => g.First())
-                        .ToList();
+                foreach (var (name, id) in newCategories)
+                    await _dbContext.Database.ExecuteSqlRawAsync(
+                        """INSERT INTO "Categories" ("Id", "Name", "CreatedAt") VALUES ({0}, {1}, {2})""",
+                        id, name, DateTime.UtcNow);
 
-                    await _context.Categories.AddRangeAsync(distinctCategories, cancellationToken);
-                    await _context.SaveChangesAsync(cancellationToken);
+
+                var attachedCategories = new Dictionary<Guid, Category>();
+
+                foreach (var article in articles)
+                {
+                    var categoryIds = article.Categories.Select(c => c.Id).ToList();
+                    article.Categories.Clear();
+
+                    _dbContext.Entry(article).State = EntityState.Added;
+                    _dbContext.Entry(article.Thread).State = EntityState.Added;
+
+                    foreach (var catId in categoryIds)
+                    {
+                        if (!attachedCategories.TryGetValue(catId, out var cat))
+                        {
+                            cat = new Category { Id = catId };
+                            _dbContext.Attach(cat);
+                            attachedCategories[catId] = cat;
+                        }
+
+                        article.Categories.Add(cat);
+                    }
                 }
 
-                await _context.Articles.AddRangeAsync(articles, cancellationToken);
                 await _context.SaveChangesAsync(cancellationToken);
-
                 await transaction.CommitAsync(cancellationToken);
             }
             catch
@@ -276,6 +237,25 @@ public class ImportArticlesFromFolder
             {
                 _dbContext.ChangeTracker.Clear();
             }
+        }
+
+        private async Task ClearAllData(CancellationToken cancellationToken)
+        {
+            // Сначала эмбеддинги (зависят от Articles)
+            await _dbContext.Database.ExecuteSqlRawAsync(@"DELETE FROM ""ArticleEmbeddings""", cancellationToken);
+            await _dbContext.Database.ExecuteSqlRawAsync(@"DELETE FROM ""ArticleEmbeddingsGemini""", cancellationToken);
+            await _dbContext.Database.ExecuteSqlRawAsync(@"DELETE FROM ""ArticleEmbeddingsOpenAi""", cancellationToken);
+
+            // Зависимые сущности
+            await _dbContext.Database.ExecuteSqlRawAsync(@"DELETE FROM ""ArticleUnits""", cancellationToken);
+            await _dbContext.Database.ExecuteSqlRawAsync(@"DELETE FROM ""ThreadInfos""", cancellationToken);
+
+            // Join-таблица — проверь имя в своей миграции!
+            await _dbContext.Database.ExecuteSqlRawAsync(@"DELETE FROM ""ArticleCategory""", cancellationToken);
+
+            // Основные таблицы
+            await _dbContext.Database.ExecuteSqlRawAsync(@"DELETE FROM ""Articles""", cancellationToken);
+            await _dbContext.Database.ExecuteSqlRawAsync(@"DELETE FROM ""Categories""", cancellationToken);
         }
     }
 }
