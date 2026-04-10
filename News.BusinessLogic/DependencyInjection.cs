@@ -43,6 +43,7 @@ public static class DependencyInjection
                 throw new ArgumentOutOfRangeException(nameof(provider), provider, null);
         }
 
+        services.AddScoped<IUserRecommendations, UserRecommendations>();
         return services;
     }
 }

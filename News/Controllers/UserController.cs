@@ -36,19 +36,16 @@ public class UserController(IMapper mapper, Token token) : BaseController
             UserEmail = dto.Email
         };
         var client = await Mediator.Send(query);
-        string jwt;
+        var jwt = token.GenerateUserToken(client.Email);
 
         if (!BCrypt.Net.BCrypt.Verify(dto.Password, client.PasswordHash))
             return BadRequest(new { message = "Wrong password" });
-
-        if (client.Role == UserRole.User)
-            jwt = token.GenerateUserToken(client.Email);
-        else
-            jwt = token.GenerateAdminToken(client.Email);
-
+        
         Response.Cookies.Append("jwt", jwt, new CookieOptions
         {
-            HttpOnly = true
+            HttpOnly = true,
+            SameSite = SameSiteMode.None, 
+            Secure = true                
         });
 
         return Ok(jwt);

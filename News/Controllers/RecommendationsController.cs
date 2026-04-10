@@ -1,10 +1,14 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using News.BusinessLogic.Interfaces;
 
 namespace WebApi.Controllers;
 
-public class RecommendationsController(IRecommendationService recommendations) : BaseController
+public class RecommendationsController(IRecommendationService recommendations, IUserRecommendations userRecommendations) : BaseController
 {
+    private Guid CurrentUserId =>
+        Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+    
     /// <summary> 
     /// Returns similar articles upon cosyne similarity of embeddings
     /// </summary>
@@ -33,5 +37,25 @@ public class RecommendationsController(IRecommendationService recommendations) :
     {
         var result = await recommendations.IndexArticlesAsync(ct);
         return Ok(result);
+    }
+    
+    /// <summary>
+    /// Personalized recommendations based on users reading history
+    /// </summary>
+    [HttpGet]
+    public async Task<IActionResult> GetUserRecommendations([FromQuery] int topN = 10, CancellationToken ct = default)
+    {
+        var articles = await userRecommendations.GetRecommendationsAsync(CurrentUserId, topN, ct);
+        return Ok(articles);
+    }
+ 
+    /// <summary>
+    /// Called when a user opens an article
+    /// </summary>
+    [HttpPost("{articleId:guid}")]
+    public async Task<IActionResult> Track(Guid articleId, CancellationToken ct = default)
+    {
+        await userRecommendations.TrackViewAsync(CurrentUserId, articleId, ct);
+        return Ok();
     }
 }
