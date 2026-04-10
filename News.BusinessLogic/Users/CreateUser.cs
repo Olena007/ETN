@@ -12,13 +12,11 @@ public class CreateUser
 {
     public class CreateUserCommand : IRequest<Guid>
     {
-        public string UserName { get; set; } = null!;
+        public string Name { get; set; } = null!;
 
         public string Email { get; set; } = null!;
 
         public string PasswordHash { get; set; } = null!;
-
-        public UserRole Role { get; set; } = UserRole.User;
     }
 
     public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, Guid>
@@ -35,8 +33,7 @@ public class CreateUser
             var entity = new User
             {
                 Id = Guid.NewGuid(),
-                UserName = request.UserName,
-                Role = request.Role,
+                UserName = request.Name,
                 Email = request.Email,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.PasswordHash),
                 CreatedAt = DateTime.UtcNow
