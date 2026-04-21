@@ -37,8 +37,6 @@ public class ImportArticlesFromFolder
 
             if (!Directory.Exists(request.FolderPath))
                 throw new EntryPointNotFoundException($"Folder {request.FolderPath} not found");
-
-            //await ClearAllData(cancellationToken);
             
             var jsonFiles = Directory.GetFiles(request.FolderPath, "*.json", SearchOption.AllDirectories);
             result.TotalFiles = jsonFiles.Length;
@@ -179,7 +177,6 @@ public class ImportArticlesFromFolder
             if (articleData.Entities == null) return article;
             var entities = articleData.Entities.Persons.Select(person => new ArticleUnit { Name = person.Name, Type = "person", Sentiment = person.Sentiment }).ToList();
             entities.AddRange(articleData.Entities.Organizations.Select(org => new ArticleUnit { Name = org.Name, Type = "organization", Sentiment = org.Sentiment }));
-
             entities.AddRange(articleData.Entities.Locations.Select(location => new ArticleUnit { Name = location.Name, Type = "location", Sentiment = location.Sentiment }));
 
             article.Entities = entities;
@@ -237,25 +234,6 @@ public class ImportArticlesFromFolder
             {
                 _dbContext.ChangeTracker.Clear();
             }
-        }
-
-        private async Task ClearAllData(CancellationToken cancellationToken)
-        {
-            // Сначала эмбеддинги (зависят от Articles)
-            await _dbContext.Database.ExecuteSqlRawAsync(@"DELETE FROM ""ArticleEmbeddings""", cancellationToken);
-            await _dbContext.Database.ExecuteSqlRawAsync(@"DELETE FROM ""ArticleEmbeddingsGemini""", cancellationToken);
-            await _dbContext.Database.ExecuteSqlRawAsync(@"DELETE FROM ""ArticleEmbeddingsOpenAi""", cancellationToken);
-
-            // Зависимые сущности
-            await _dbContext.Database.ExecuteSqlRawAsync(@"DELETE FROM ""ArticleUnits""", cancellationToken);
-            await _dbContext.Database.ExecuteSqlRawAsync(@"DELETE FROM ""ThreadInfos""", cancellationToken);
-
-            // Join-таблица — проверь имя в своей миграции!
-            await _dbContext.Database.ExecuteSqlRawAsync(@"DELETE FROM ""ArticleCategory""", cancellationToken);
-
-            // Основные таблицы
-            await _dbContext.Database.ExecuteSqlRawAsync(@"DELETE FROM ""Articles""", cancellationToken);
-            await _dbContext.Database.ExecuteSqlRawAsync(@"DELETE FROM ""Categories""", cancellationToken);
         }
     }
 }

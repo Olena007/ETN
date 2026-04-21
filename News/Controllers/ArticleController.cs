@@ -43,4 +43,17 @@ public class ArticleController : BaseController
         var result = await Mediator.Send(new DeleteArticlesByLanguage.DeleteArticlesByLanguageCommand { Language = language });
         return Ok(new { deletedCount = result, language = language });
     }
+    
+    [HttpGet]
+    public async Task<ActionResult<List<GetByCategory.ArticleByCategoryDto>>> GetByCategory(string category, int count) {
+        var result = await Mediator.Send(new GetByCategory.GetByCategoryQuery  { Category = category, Count = count });
+        return Ok(result);
+    }
+    
+    [HttpDelete]
+    public async Task<ActionResult<bool>> Delete(Guid id)
+    {
+        var result = await Mediator.Send(new DeleteArticle.DeleteArticleCommand { Id = id });
+        return Ok(result);
+    }
 }

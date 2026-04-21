@@ -12,6 +12,7 @@ public class GetArticles
         public int PageSize { get; set; } = 10;
         public string? SearchTerm { get; set; }
         public string? Category { get; set; }
+        public List<string> Country { get; set; } = [];
         public string? Language { get; set; }
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
@@ -31,6 +32,7 @@ public class GetArticles
         public Guid Id { get; set; }
         public string Uuid { get; set; } = null!;
         public string Title { get; set; } = null!;
+        public string Text { get; set; } = null!;
         public string? Author { get; set; }
         public DateTime Published { get; set; }
         public string? Language { get; set; }
@@ -55,7 +57,7 @@ public class GetArticles
                 .Include(a => a.Thread)
                 .Include(a => a.Categories)
                 .AsQueryable();
-
+            
             if (!string.IsNullOrWhiteSpace(request.SearchTerm))
             {
                 var searchTerm = request.SearchTerm.ToLower();
@@ -63,7 +65,7 @@ public class GetArticles
                     a.Title.ToLower().Contains(searchTerm) ||
                     a.Text.ToLower().Contains(searchTerm));
             }
-
+            
             if (!string.IsNullOrWhiteSpace(request.Category))
                 query = query.Where(a =>
                     a.Categories.Any(c => c.Name == request.Category));
@@ -73,10 +75,13 @@ public class GetArticles
             if (request.FromDate.HasValue) query = query.Where(a => a.Published >= request.FromDate.Value);
 
             if (request.ToDate.HasValue) query = query.Where(a => a.Published <= request.ToDate.Value);
+            
+            if (request.Country.Count > 0) query = query.Where(a => a.Thread.Country != null && request.Country.Contains(a.Thread.Country));
 
             var totalCount = await query.CountAsync(cancellationToken);
 
             var items = await query
+                .Where(x => x.Thread.MainImage != null)
                 .OrderByDescending(a => a.Published)
                 .Skip((request.Page - 1) * request.PageSize)
                 .Take(request.PageSize)
@@ -85,11 +90,11 @@ public class GetArticles
                     Id = a.Id,
                     Uuid = a.Uuid,
                     Title = a.Title,
+                    Text = a.Text,
                     Author = a.Author,
                     Published = a.Published,
                     Language = a.Language,
                     Sentiment = a.Sentiment,
-                    Site = a.Thread != null ? a.Thread.Site : string.Empty,
                     Categories = a.Categories.Select(c => c.Name).ToList(),
                     Thread = a.Thread != null
                         ? new GetArticle.ThreadInfoDto

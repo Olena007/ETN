@@ -44,8 +44,9 @@ public class UserController(IMapper mapper, Token token) : BaseController
         Response.Cookies.Append("jwt", jwt, new CookieOptions
         {
             HttpOnly = true,
-            SameSite = SameSiteMode.None, 
-            Secure = true                
+            SameSite = SameSiteMode.None,
+            Secure = true,
+            Expires = DateTime.Now.AddDays(2) 
         });
 
         return Ok(jwt);
@@ -59,7 +60,6 @@ public class UserController(IMapper mapper, Token token) : BaseController
             var jwt = Request.Cookies["jwt"];
 
             var token1 = token.Verify(jwt ?? string.Empty);
-
             var email = token1.Claims
                 .First(claim => claim.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name").Value;
             var query = new GetUserQueryByEmail
@@ -67,59 +67,34 @@ public class UserController(IMapper mapper, Token token) : BaseController
                 UserEmail = email
             };
             var client = await Mediator.Send(query);
-            var queryId = new GetUserQuery
-            {
-                UserId = client.Id
-            };
-
-            return Ok(queryId);
+            return Ok(client);
         }
         catch (Exception)
         {
             return Unauthorized();
         }
     }
-
+    
     [HttpGet]
-    public async Task<ActionResult<UserVm>> GetRole()
+    public IActionResult CheckAuth()
     {
-        try
-        {
-            var jwt = Request.Cookies["jwt"];
-
-            var token1 = token.Verify(jwt!);
-
-            var email = token1.Claims
-                .First(claim => claim.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name").Value;
-            var query = new GetUserQueryByEmail
-            {
-                UserEmail = email
-            };
-            var client = await Mediator.Send(query);
-            var queryId = new GetUserQuery
-            {
-                UserId = client.Id
-            };
-            var clientRole = await Mediator.Send(queryId);
-
-            var role = clientRole.Role;
-            return Ok(role);
-        }
-        catch (Exception)
-        {
-            return Unauthorized();
-        }
+        var tokenResult = Request.Cookies["jwt"]; 
+        var isAuthenticated = !string.IsNullOrEmpty(tokenResult);
+        return Ok(new { isAuthenticated });
     }
-
+    
     [HttpPost]
     public IActionResult Logout()
     {
-        Response.Cookies.Delete("jwt");
-
-        return Ok(new
+        Response.Cookies.Delete("jwt", new CookieOptions
         {
-            message = "logouted"
-        });
+            HttpOnly = true,
+            SameSite = SameSiteMode.None,
+            Secure = true,
+            Path = "/"
+        }); 
+    
+        return Ok(new { message = "logged out" });
     }
 
     [HttpPut]
