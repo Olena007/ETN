@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using News.BusinessLogic.Articles;
 using News.BusinessLogic.Interfaces;
 using News.Entities;
 using Pgvector;
@@ -24,9 +25,9 @@ public class UserRecommendations(INewsDbContext db) : IUserRecommendations
         });
 
         await db.SaveChangesAsync(ct);
-    }
+    }  
 
-    public async Task<IEnumerable<Article>> GetRecommendationsAsync(Guid userId, int topN = 10,
+    public async Task<List<GetArticles.ArticleListItemDto>> GetRecommendationsAsync(Guid userId, int topN = 10,
         CancellationToken ct = default)
     {
         var recentArticleIds = await db.UserArticleViews
@@ -49,13 +50,34 @@ public class UserRecommendations(INewsDbContext db) : IUserRecommendations
 
         var avgVector = new Vector(AverageVectors(vectors));
 
-        return await db.ArticleEmbeddings
+        var articles = await db.ArticleEmbeddings
             .Where(e => !recentArticleIds.Contains(e.ArticleId))
             .OrderBy(e => e.Vector.CosineDistance(avgVector))
             .Take(topN)
             .Include(e => e.Article)
+            .ThenInclude(a => a.Thread)  
             .Select(e => e.Article)
             .ToListAsync(ct);
+        
+        var result = articles.Select(a => new GetArticles.ArticleListItemDto
+        {
+            Id = a.Id,
+            Uuid = a.Uuid,
+            Title = a.Title,
+            Text = a.Text,
+            Author = a.Author,
+            Published = a.Published,
+            Language = a.Language,
+            Thread = a.Thread == null ? null : new GetArticle.ThreadInfoDto
+            {
+                Id = a.Thread.Id,
+                MainImage = a.Thread.MainImage,
+                Site = a.Thread.Site,
+                Country = a.Thread.Country
+            }
+        }).ToList();
+
+        return result;
     }
 
     private static float[] AverageVectors(List<Vector> vectors)

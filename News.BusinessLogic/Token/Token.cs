@@ -1,69 +1,65 @@
 ﻿using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 
 namespace News.BusinessLogic.Token
 {
-    public class Token
+    public class Token(IConfiguration configuration)
     {
-        private string _secureKey = "a very very very important secure key";
-        public string GenerateUserToken(string name)
-        {
-            List<Claim> claims = new List<Claim>()
+        private readonly string? _secureKey = configuration["JwtSettings:SecretKey"];
+
+        public string GenerateUserToken(string email, Guid userId, string? userName = null) {
+            var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, name),
-                new Claim(ClaimTypes.Role, "User")
+                new (ClaimTypes.NameIdentifier, userId.ToString()),  
+                new (ClaimTypes.Email, email),                     
+                new (ClaimTypes.Name, userName ?? email),           
+                new (ClaimTypes.Role, "User"),
+                new (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()) 
             };
 
-
-            var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secureKey));
-            var credentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256Signature);
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secureKey!));
+            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            
             var token = new JwtSecurityToken(
+                issuer: "ETN-News",      
+                audience: "ETN-Users", 
                 claims: claims,
-                expires: DateTime.Today.AddDays(1),
+                expires: DateTime.UtcNow.AddDays(1),
                 signingCredentials: credentials
-                );
-            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
-            return jwt;
+            );
+            
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
-        public string GenerateAdminToken(string name)
-        {
-            List<Claim> claims = new List<Claim>()
-            {
-                new Claim(ClaimTypes.Name, name),
-                new Claim(ClaimTypes.Role, "Admin")
-            };
-
-
-            var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secureKey));
-            var credentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256Signature);
-            var token = new JwtSecurityToken(
-                claims: claims,
-                expires: DateTime.Today.AddDays(1),
-                signingCredentials: credentials
-                );
-            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
-            return jwt;
-        }
-
-        public JwtSecurityToken Verify(string jwt)
+        
+        public ClaimsPrincipal Verify(string jwt)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_secureKey);
-            tokenHandler.ValidateToken(jwt, new TokenValidationParameters
+            var key = Encoding.UTF8.GetBytes(_secureKey);
+            
+            var validationParameters = new TokenValidationParameters
             {
-                IssuerSigningKey = new SymmetricSecurityKey(key),
                 ValidateIssuerSigningKey = true,
-                ValidateIssuer = false,
-                ValidateAudience = false
-            }, out SecurityToken validatedToken);
-
-            return (JwtSecurityToken)validatedToken;
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateIssuer = true,      
+                ValidIssuer = "ETN-News",
+                ValidateAudience = true,    
+                ValidAudience = "ETN-Users",
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero
+            };
+            
+            try
+            {
+                var principal = tokenHandler.ValidateToken(jwt, validationParameters, out _);
+                return principal;
+            }
+            catch (Exception ex)
+            {
+                throw new SecurityTokenException("Invalid token", ex);
+            }
         }
     }
 }

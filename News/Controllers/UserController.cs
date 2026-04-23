@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using News.BusinessLogic.Token;
-using News.Enums;
 using WebApi.Models;
 using static News.BusinessLogic.Users.GetUsers;
 using static News.BusinessLogic.Users.GetUser;
@@ -31,25 +30,33 @@ public class UserController(IMapper mapper, Token token) : BaseController
     [HttpPost]
     public async Task<ActionResult<UserVm>> Login(LoginDto dto)
     {
-        var query = new GetUserQueryByEmail
-        {
-            UserEmail = dto.Email
-        };
+        var query = new GetUserQueryByEmail { UserEmail = dto.Email };
         var client = await Mediator.Send(query);
-        var jwt = token.GenerateUserToken(client.Email);
-
+    
         if (!BCrypt.Net.BCrypt.Verify(dto.Password, client.PasswordHash))
             return BadRequest(new { message = "Wrong password" });
-        
+    
+        var jwt = token.GenerateUserToken(client.Email, client.Id, client.UserName);
+    
+        Console.WriteLine($"Generated token for user: {client.Email}, ID: {client.Id}");
+    
         Response.Cookies.Append("jwt", jwt, new CookieOptions
         {
             HttpOnly = true,
-            SameSite = SameSiteMode.None,
-            Secure = true,
-            Expires = DateTime.Now.AddDays(2) 
+            SameSite = SameSiteMode.None,  
+            Secure = true,                 
+            Expires = DateTime.UtcNow.AddDays(2),
+            Path = "/",
+            Domain = "localhost"
         });
-
-        return Ok(jwt);
+    
+        Console.WriteLine($"Cookie set. Response headers: Has 'Set-Cookie'");
+    
+        return Ok(new { 
+            message = "Login successful",
+            userId = client.Id,
+            email = client.Email
+        });
     }
 
     [HttpGet]
@@ -61,7 +68,7 @@ public class UserController(IMapper mapper, Token token) : BaseController
 
             var token1 = token.Verify(jwt ?? string.Empty);
             var email = token1.Claims
-                .First(claim => claim.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name").Value;
+                .First(claim => claim.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress").Value;
             var query = new GetUserQueryByEmail
             {
                 UserEmail = email

@@ -1,5 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
+﻿using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
 using News.BusinessLogic.Embeddings;
 using News.BusinessLogic.Interfaces;
 using News.BusinessLogic.Recommendations;
@@ -9,15 +9,15 @@ namespace News.BusinessLogic;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddApplication(this IServiceCollection services)
+    public static void AddApplication(this IServiceCollection services)
     {
         services.AddMediatR(cfg =>
             cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
-        return services;
+        
+        services.AddScoped<Token.Token>();
     }
 
-    public static IServiceCollection AddBusinessLogic(
-        this IServiceCollection services,
+    public static void AddBusinessLogic(this IServiceCollection services,
         EmbeddingProvider provider,
         string sentenceTransformersUrl = "",
         string geminiApiKey = "")
@@ -44,6 +44,5 @@ public static class DependencyInjection
         }
 
         services.AddScoped<IUserRecommendations, UserRecommendations>();
-        return services;
     }
 }

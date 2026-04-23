@@ -1,15 +1,45 @@
 using News.BusinessLogic;
 using News.BusinessLogic.Interfaces;
-using News.BusinessLogic.Token;
 using News.Infrastructure;
 using System.Reflection;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
 using News.BusinessLogic.Common.Mappings;
 using News.Enums;
+using Microsoft.AspNetCore.Authentication.JwtBearer;  
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options => 
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecretKey"]!)),
+            ValidateIssuer = true,
+            ValidIssuer = "ETN-News",
+            ValidateAudience = true,
+            ValidAudience = "ETN-Users",
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero
+        };
+        
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var token = context.Request.Cookies["jwt"];
+                context.Token = token;
+                return Task.CompletedTask;
+            }
+        };
+    });
+
+builder.Services.AddAuthorization();
+builder.Services.AddControllers();
 builder.Services.AddAutoMapper(config =>
 {
     config.AddProfile(new AssemblyMappingProfile(Assembly.GetExecutingAssembly()));
@@ -25,16 +55,16 @@ builder.Services.AddBusinessLogic(
     sentenceTransformersUrl: builder.Configuration["Embedding:SentenceTransformersUrl"] ?? "",
     geminiApiKey: builder.Configuration["Embedding:GeminiApiKey"] ?? ""
 );
-builder.Services.AddScoped<Token>();
+
 builder.Services.AddCors(opts =>
 {
     opts.AddPolicy("AllowAll", policy =>
     {
         policy
-            .WithOrigins("http://localhost:3000")
+            .WithOrigins( "http://localhost:3000")
+            .AllowCredentials() 
             .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials();
+            .AllowAnyMethod();
     });
 });
 
@@ -49,7 +79,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
-app.UseAuthentication();
+app.UseAuthentication(); 
 app.UseAuthorization();
 app.MapControllers();
 

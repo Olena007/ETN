@@ -1,3 +1,4 @@
+using News.BusinessLogic.Articles;
 using News.Entities;
 
 namespace News.BusinessLogic.Interfaces;
@@ -12,5 +13,5 @@ public interface IUserRecommendations
     /// <summary>
     ///     Returns personalized recommendations based on reading history
     /// </summary>
-    Task<IEnumerable<Article>> GetRecommendationsAsync(Guid userId, int topN = 10, CancellationToken ct = default);
+    Task<List<GetArticles.ArticleListItemDto>> GetRecommendationsAsync(Guid userId, int topN = 10, CancellationToken ct = default);
 }

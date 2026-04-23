@@ -6,8 +6,7 @@ namespace WebApi.Controllers;
 
 public class RecommendationsController(IRecommendationService recommendations, IUserRecommendations userRecommendations) : BaseController
 {
-    private Guid CurrentUserId =>
-        Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+    private string CurrentUserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
     
     /// <summary> 
     /// Returns similar articles upon cosyne similarity of embeddings
@@ -45,7 +44,7 @@ public class RecommendationsController(IRecommendationService recommendations, I
     [HttpGet]
     public async Task<IActionResult> GetUserRecommendations([FromQuery] int topN = 10, CancellationToken ct = default)
     {
-        var articles = await userRecommendations.GetRecommendationsAsync(CurrentUserId, topN, ct);
+        var articles = await userRecommendations.GetRecommendationsAsync(Guid.Parse(CurrentUserId), topN, ct);
         return Ok(articles);
     }
  
@@ -55,7 +54,7 @@ public class RecommendationsController(IRecommendationService recommendations, I
     [HttpPost("{articleId:guid}")]
     public async Task<IActionResult> Track(Guid articleId, CancellationToken ct = default)
     {
-        await userRecommendations.TrackViewAsync(CurrentUserId, articleId, ct);
+        await userRecommendations.TrackViewAsync(Guid.Parse(CurrentUserId), articleId, ct);
         return Ok();
     }
 }
